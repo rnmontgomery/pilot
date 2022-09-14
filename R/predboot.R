@@ -1,5 +1,23 @@
 
-
+document()
+#' Title
+#'
+#' @param weights A vector of weights for each endpoint
+#' @param results A vector of 1's and 0's for each endpoint (the prediction results)
+#' @param nullphi The null hypothesized phi value
+#' @param alpha The type I error rate
+#' @param sims The number of bootstrap simulations
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+#' weights <- c(0.25, 0.3, 0.6, 0.15, 0.76, 0.17, 0.23)
+#' results <- c(1, 1, 1, 0, 0, 1, 1)
+#' nullphi <- 0.50
+#' alpha <- 0.05
+#' sims <- 100
 predboot<- function(weights, results, nullphi = 0.50, alpha = 0.05, sims = 5000){
 
   teststat <- weights%*%results
