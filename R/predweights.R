@@ -1,118 +1,51 @@
-summarise_at(all_of(variables), median, na.rm = TRUE) -> groupmeans
-}
-groupmeans <- groupmeans[order(groupmeans$group),] # Prediction calculate as Grp1-Grp2
+prediction.weights <- function(data, variables,id, timevar, type = "group", cor = "pearson"){
 
-results <- groupmeans[1,variables] - groupmeans[2,variables]
-differences <- results
 
-if (direction == "up"){
-  for ( z in 1:length(variables)){
-    results[c(variables[z])] <- ifelse(results[c(variables[z])] > 0,1,0 )
-    predictions <- rep(phi_0, length(variables))
-  }
-}else if (direction == "down"){
-  for ( z in 1:length(variables)){
-    results[c(variables[z])] <- ifelse(results[c(variables[z])] < 0,1,0 )
-    predictions <- rep(phi_0, length(variables))
-  }
-}else if (direction == "mixed"){
-
-  for ( j in 1:dim(predictions)[1])
+  if(type == "group")
   {
+    dataset <- data
+    endpoints <- subset(dataset, select = c(variables))
+    samplec <- cor(endpoints, method = cor)
+    weights <- rowSums(samplec^2)
 
-    rules <- predictions[predictions[,1] ==names(results[j]),]
-    if (as.numeric(rules[2]) == 1){
+  }else if( type == "prepost"){
 
-      results[j] <- ifelse(results[j] > 0, 1, 0)
+    dataset <- data
+    timevar <- dataset$time
 
-    }else if (as.numeric(rules[2]) == 2){
-
-      results[j] <- ifelse(results[j] < 0, 1, 0)
-
-    }else if(as.numeric(rules[2]) == 3){
-
-      if (bound == "wilcoxon")
-      {
-        split <- dataset[,c(gtvar,names(results[j]))]
-        split1 <- split[split[,gtvar]==as.numeric(levels[1]),]
-        split2 <- split[split[,gtvar]==as.numeric(levels[2]),]
-
-        results[j] <- ifelse(wilcox.test(split1[,names(results[j])],split2[,names(results[j])])$p.value <
-                               phi_0, 1,0)
-
-
-      } else if (bound == "normal")
-      {
-        split <- dataset[,c(gtvar,names(results[j]))]
-        split1 <- split[split[,gtvar]==as.numeric(levels[1]),]
-        split2 <- split[split[,gtvar]==as.numeric(levels[2]),]
-
-        obdiff <- mean(split1[,names(results[j])]) - mean(split2[,names(results[j])])
-        results[j] <- ifelse(obdiff >  qnorm(1-(phi_0/2)) | obdiff < qnorm(phi_0/2), 1, 0)
-      }
-    }
-  }
-}
-}else if (type == "prepost"){
-  reference <- factor(dataset$time)[1]
-
-  post <- dataset[dataset$time != reference,]
-  pre <- dataset[dataset$time == reference,]
-  if (location == "mean")
-  {
-    results <- colMeans(as.data.frame(post[,variables] - pre[,variables]))
-  } else if (location == "median")
-  {
-    results <- colMedians(as.matrix(post[,variables] - pre[,variables]))
-  }
-  differences <- results
-
-  if (direction == "up"){
-    for ( z in 1:length(variables)){
-      results[c(variables[z])] <- ifelse(results[c(variables[z])] > 0,1,0 )
-    }
-  }else if (direction == "down"){
-    for ( z in 1:length(variables)){
-      results[c(variables[z])] <- ifelse(results[c(variables[z])] < 0,1,0 )
-    }
-  }else if (direction == "mixed"){
-
-    for ( j in 1:dim(predictions)[1])
+    if (is.null(timevar) )
     {
+      stop("Provide a numeric timevar to indicate pre and post observations.")
 
-      rules <- predictions[predictions[,1] ==names(results[j]),]
-      if (as.numeric(rules[2]) == 1){
-        results[j] <- ifelse(results[j] > 0, 1, 0)
-
-      }else if (as.numeric(rules[2]) == 2){
-
-        results[j] <- ifelse(results[j] < 0, 1, 0)
-
-      }else if(as.numeric(rules[2]) == 3){
-
-        if (bound == "wilcoxon")
-        {
-          split <- dataset[,c(gtvar,names(results[j]))]
-          split1 <- split[split[,gtvar]==as.numeric(reference),]
-          split2 <- split[split[,gtvar]!=as.numeric(reference),]
-
-          results[j] <- ifelse(wilcox.test(split1[,names(results[j])],split2[,names(results[j])])$p.value < phi_0, 1,0)
-
-
-        } else if (bound == "normal")
-        {
-          split <- dataset[,c(gtvar,names(results[j]))]
-          split1 <- split[split[,gtvar]==as.numeric(reference),]
-          split2 <- split[split[,gtvar]!=as.numeric(reference),]
-
-          obdiff <- mean(split2[,names(results[j])]) - mean(split1[,names(results[j])])
-          results[j] <- ifelse(obdiff >  qnorm(1-(phi_0/2)) | obdiff < qnorm(phi_0/2), 1, 0)
-        }
-      }
     }
-  }
-}
+    if( length(unique(timevar)) > 2 ){
 
-outresults <- list(results, differences)
-return(outresults)
+      stop("Expecting two values for timevar.")
+    }
+
+
+
+    mutatefunc <- function (column) (
+      dataset %>%
+        arrange(id) %>%
+        group_by(id) %>%
+        mutate( !!paste0('diff.',as.name(column)) :=  !!as.name(column)-first(!!as.name(column))  ) -> dataset
+
+    )
+
+    for ( i in 1:length(variables))
+    {
+      x <- variables[i]
+      dataset <- mutatefunc(x)
+    }
+
+    samplec <- cor( dataset[,c(paste0( "diff.",variables)) ], method = cor)
+    weights <- rowSums(samplec^2)
+
+
+
+  }
+  outweight <- list(weights)
+  return(outweight)
+}
 
