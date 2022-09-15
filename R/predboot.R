@@ -1,5 +1,4 @@
 
-document()
 #' Title
 #'
 #' @param weights A vector of weights for each endpoint
@@ -8,7 +7,7 @@ document()
 #' @param alpha The type I error rate
 #' @param sims The number of bootstrap simulations
 #'
-#' @return
+#' @return A list
 #' @export
 #'
 #' @examples
@@ -37,9 +36,20 @@ predboot<- function(weights, results, nullphi = 0.50, alpha = 0.05, sims = 5000)
     stop("nullphi needs to be either a single value or specified for every endpoint")
   }
 
-  x <- list(statistic = teststat, p.value = pval, null.value = nullphi, m = ntests, alpha = alpha, correct = correct )
+  x <- list(statistic = teststat, p.value = pval, null.value = nullphi, m = ntests, alpha = alpha, correct = correct, sims = sims)
 
-  return(x)
+  print.boot <- function(x){
+    cat("\n\t\tResults for the Prediction Test")
+
+    cat("\n\nOf the", paste(x$m), " endpoints of interest,", paste(x$correct), "were correctly predicted.")
+    cat("\nCalculated using a bootstrap of", paste(x$sims), "simulations")
+
+    cat("\n----------------------------------------------------------------")
+    cat("\nTm:", paste(format(x$statistic,digits=4)),
+        "\t Null hypothesized", paste("\U03D5:"), paste(format(x$null.value)),
+        "\t p.value:", paste(format(x$p.value, digits = 4)))
+  }
+  return(print.boot(x))
 
 
 }

@@ -1,5 +1,13 @@
 
 
+#' Title
+#'
+#' @param predictionresults Output from the results function.
+#'
+#' @return A plot
+#' @export
+#'
+#' @examples
 predplot <- function(predictionresults = results){
 
   end <- colnames(results[[2]])

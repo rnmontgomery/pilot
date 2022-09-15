@@ -1,3 +1,16 @@
+#' Title
+#'
+#' @param data Data set
+#' @param variables Variables in the data set you want to include (only endpoints)
+#' @param id The ID variable from the data set
+#' @param timevar The time variable from the data set
+#' @param type The type of analysis (pre-post or between groups)
+#' @param cor Type of correlation, e.g. pearson
+#'
+#' @return A list of weights
+#' @export
+#'
+#' @examples
 prediction.weights <- function(data, variables,id, timevar, type = "group", cor = "pearson"){
 
 

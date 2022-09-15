@@ -1,5 +1,22 @@
 
 
+#' Title
+#'
+#' @param weights A vector of weights for each endpoint
+#' @param results A vector of 1's and 0's (the results for each endpoint)
+#' @param nullphi Null hypothesized phi value
+#' @param alpha Type I error rate
+#' @param exact Should the calculation be exact? Supported for m < 20
+#'
+#' @return A printed list
+#' @export
+#'
+#' @examples
+#' weights <- c(0.25, 0.3, 0.6, 0.15, 0.76, 0.17, 0.23)
+#' results <- c(1, 1, 1, 0, 0, 1, 1)
+#' nullphi <- 0.50
+#' alpha <- 0.05
+#' exact <- TRUE
 predtest<- function(weights, results, nullphi = 0.50, alpha = 0.05, exact = TRUE){
 
   ntests <- length(weights)
@@ -40,6 +57,23 @@ predtest<- function(weights, results, nullphi = 0.50, alpha = 0.05, exact = TRUE
 
   x <- list(statistic = teststat, p.value = pval, null.value = nullphi, m = ntests, alpha = alpha, correct = correct, type = type )
 
-  return(x)
+
+  print.prediction.test <- function(x){
+    cat("\n\t\tResults for the Prediction Test")
+
+    cat("\n\nOf the", paste(x$m), " endpoints of interest,", paste(x$correct), "were correctly predicted.")
+    if (x$type == 1){
+      cat("\nCalculated using the normal approximation:")
+    } else if (x$type == 2){
+      cat("\nCalculated using the exact distribution:")
+    }
+    cat("\n----------------------------------------------------------------")
+    cat("\nTm:", paste(format(x$statistic,digits=4)),
+        "\t Null hypothesized", paste("\U03D5:"), paste(format(x$null.value)),
+        "\t p.value:", paste(format(x$p.value, digits = 4)))
+  }
+
+
+  return(print.prediction.test(x))
 
 }
