@@ -11,7 +11,31 @@
 #' @export
 #'
 #' @examples
-predweights <- function(data, variables,id, timevar, type = "group", cor = "pearson"){
+#' ID <- 1:30
+#' buildtesting <- as.data.frame(ID)
+#' buildtesting$group <- c(rep(0,15), rep(1,15))
+#' buildtesting$v1 <- rnorm(30, 0, 1)
+#' buildtesting$v2 <- rnorm(30, 0, 1)
+#' buildtesting$v3 <- rnorm(30, 0, 1)
+#' buildtesting$v4 <- rnorm(30, 0, 1)
+#'
+#' ID2 <- c(rep(1:15,2))
+#' buildtesting2 <- as.data.frame(ID2)
+#' buildtesting2$time2 <- c(rep(0,15), rep(12,15))
+#' buildtesting2$v1 <- rnorm(30, 0, 1)
+#' buildtesting2$v2 <- rnorm(30, 0, 1)
+#' buildtesting2$v3 <- rnorm(30, 0, 1)
+#' buildtesting2$v4 <- rnorm(30, 0, 1)
+#'
+#'
+#'
+#'
+#'
+#'
+
+
+#'
+predweights <- function(data, variables, id, timevar, type = "group", cor = "pearson"){
 
 
   if(type == "group")
@@ -24,30 +48,32 @@ predweights <- function(data, variables,id, timevar, type = "group", cor = "pear
   }else if( type == "prepost"){
 
     dataset <- data
-    timevar <- dataset$time
+    timevard <- dataset[,timevar]
 
-    if (is.null(timevar) )
+
+    if (!is.numeric(timevard) )
     {
       stop("Provide a numeric timevar to indicate pre and post observations.")
 
     }
-    if( length(unique(timevar)) > 2 ){
+    if( length(unique(timevard)) > 2 ){
 
-      stop("Expecting two values for timevar.")
+      stop("Only pre-post data is supported with two unique time values.")
     }
 
-    mutatefunc <- function (column) (
-      dataset %>%
-        arrange(id) %>%
-        group_by(id) %>%
-        mutate( !!paste0('diff.',as.name(column)) :=  !!as.name(column)-first(!!as.name(column))  ) -> dataset
+    mutatefunc <- function (data,id,column) (
+      data %>%
+        dplyr::arrange(!!id, timevar) %>%
+        dplyr::group_by(id, timevar ) %>%
+        dplyr::mutate( !!paste0('diff.',as.name(column)) :=
+                         !!as.name(column)-first(!!as.name(column))  ) -> dataset
 
     )
 
     for ( i in 1:length(variables))
     {
       x <- variables[i]
-      dataset <- mutatefunc(x)
+      dataset <- mutatefunc(data = dataset, id = id, column = x)
     }
 
     samplec <- cor( dataset[,c(paste0( "diff.",variables)) ], method = cor)

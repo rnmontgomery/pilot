@@ -15,6 +15,8 @@
 #' @export
 #' @import dplyr
 #' @examples
+#'
+#'
 predresults <- function(dataset, direction, bound = "wilcoxon", variables, type = "group",
                                gtvar,  phi_0 = 0.50, predictions, location = "mean"){
 
