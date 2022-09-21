@@ -18,7 +18,7 @@ predtest(weights, results, nullphi = 0.5, alpha = 0.05, exact = TRUE)
 \item{exact}{Should the calculation be exact? Supported for m < 20}
 }
 \value{
-A list
+A printed list
 }
 \description{
 Title

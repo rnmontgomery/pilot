@@ -24,6 +24,9 @@ predtest<- function(weights, results, nullphi = 0.50, alpha = 0.05, exact = TRUE
   teststat <- as.numeric(weights%*%results)
   correct <- sum(results)
 
+  # Add a part for if weights or if results are NA to use the predweights and predresults function
+  # by adding variable names (for predweights), type and time/gtvar
+
   if (exact == FALSE){
     type = 1
     z <- (teststat - nullphi*(sum(weights)) )/sqrt(nullphi*(1-nullphi)*sum(weights^2))

@@ -11,7 +11,7 @@
 #' @export
 #'
 #' @examples
-prediction.weights <- function(data, variables,id, timevar, type = "group", cor = "pearson"){
+predweights <- function(data, variables,id, timevar, type = "group", cor = "pearson"){
 
 
   if(type == "group")
@@ -36,8 +36,6 @@ prediction.weights <- function(data, variables,id, timevar, type = "group", cor 
       stop("Expecting two values for timevar.")
     }
 
-
-
     mutatefunc <- function (column) (
       dataset %>%
         arrange(id) %>%
@@ -54,8 +52,6 @@ prediction.weights <- function(data, variables,id, timevar, type = "group", cor 
 
     samplec <- cor( dataset[,c(paste0( "diff.",variables)) ], method = cor)
     weights <- rowSums(samplec^2)
-
-
 
   }
   outweight <- list(weights)
