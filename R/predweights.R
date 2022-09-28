@@ -34,8 +34,12 @@
 #'
 
 
+# New error, 9.28.22. predweights for group gives values for id and group variable
+
 #'
 predweights <- function(data, variables, id, type = "group",timevar, cor = "pearson"){
+
+
 
 
   if(type == "group")
