@@ -4,7 +4,7 @@
 \alias{predweights}
 \title{Title}
 \usage{
-predweights(data, variables, id, timevar, type = "group", cor = "pearson")
+predweights(data, variables, id, type = "group", timevar, cor = "pearson")
 }
 \arguments{
 \item{data}{Data set}
@@ -13,15 +13,35 @@ predweights(data, variables, id, timevar, type = "group", cor = "pearson")
 
 \item{id}{The ID variable from the data set}
 
-\item{timevar}{The time variable from the data set}
-
 \item{type}{The type of analysis (pre-post or between groups)}
 
-\item{cor}{Type of correlation, e.g. pearson}
+\item{timevar}{The time variable from the data set}
+
+\item{cor}{Type of correlation, default is pearson}
 }
 \value{
-A list of weights
+A list of weights, named the original variable names (type: group), or diff.variable name (type: prepost)
 }
 \description{
 Title
+}
+\examples{
+ID <- 1:30
+buildtesting <- as.data.frame(ID)
+buildtesting$group <- c(rep(0,15), rep(1,15))
+buildtesting$v1 <- rnorm(30, 0, 1)
+buildtesting$v2 <- rnorm(30, 0, 1)
+buildtesting$v3 <- rnorm(30, 0, 1)
+buildtesting$v4 <- rnorm(30, 0, 1)
+
+ID2 <- c(rep(1:15,2))
+buildtesting2 <- as.data.frame(ID2)
+buildtesting2$time2 <- c(rep(0,15), rep(12,15))
+buildtesting2$v1 <- rnorm(30, 0, 1)
+buildtesting2$v2 <- rnorm(30, 0, 1)
+buildtesting2$v3 <- rnorm(30, 0, 1)
+buildtesting2$v4 <- rnorm(30, 0, 1)
+
+
+
 }
