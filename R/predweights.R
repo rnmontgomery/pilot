@@ -5,9 +5,10 @@
 #' @param id The ID variable from the data set
 #' @param timevar The time variable from the data set
 #' @param type The type of analysis (pre-post or between groups)
-#' @param cor Type of correlation, e.g. pearson
+#' @param cor Type of correlation, default is pearson
 #'
-#' @return A list of weights
+#' @return A list of weights, named the original variable names (type: group), or diff.variable name (type: prepost)
+#' @importFrom rlang :=
 #' @export
 #'
 #' @examples
@@ -29,14 +30,7 @@
 #'
 #'
 #'
-#'
-#'
-#'
 
-
-# New error, 9.28.22. predweights for group gives values for id and group variable
-
-#'
 predweights <- function(data, variables, id, type = "group",timevar, cor = "pearson"){
 
 
