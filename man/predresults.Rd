@@ -17,7 +17,23 @@ predresults(
 )
 }
 \arguments{
-\item{location}{}
+\item{dataset}{Data to be used}
+
+\item{direction}{Direction of prediction across endpoints}
+
+\item{bound}{Whether or not a bound will be used}
+
+\item{variables}{Endpoints of interest}
+
+\item{type}{Type of analysis, pre-post or group}
+
+\item{gtvar}{Variable denoting either the group or the time, dependent on type}
+
+\item{phi_0}{The null hypothesized value}
+
+\item{predictions}{List of predictions}
+
+\item{location}{Measure of central tendency, mean or median}
 }
 \description{
 Title

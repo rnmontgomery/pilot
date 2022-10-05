@@ -4,13 +4,13 @@
 
 #' Title
 #'
-#' @param data
-#' @param variables
-#' @param covariates
-#' @param id
-#' @param timevar
-#' @param type
-#' @param cor
+#' @param data Data set
+#' @param variables Variables of interest
+#' @param covariates Covariates to adjust for
+#' @param id Id variable
+#' @param timevar Variable denoting time, only used for pre-post data
+#' @param type Type of analysis, pre-post, or group comparison
+#' @param cor Type of correlation, default is Pearson
 #'
 #' @return
 #' @export

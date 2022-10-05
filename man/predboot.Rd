@@ -17,9 +17,6 @@ predboot(weights, results, nullphi = 0.5, alpha = 0.05, sims = 5000)
 
 \item{sims}{The number of bootstrap simulations}
 }
-\value{
-A list
-}
 \description{
 Title
 }

@@ -6,6 +6,7 @@
 #'
 #' @return A plot
 #' @export
+#' @import ggplot2
 #'
 #' @examples
 predplot <- function(predictionresults = results){

@@ -7,7 +7,7 @@
 #' @param alpha The type I error rate
 #' @param sims The number of bootstrap simulations
 #'
-#' @return A list
+#' @return
 #' @export
 #'
 #' @examples
