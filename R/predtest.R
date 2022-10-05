@@ -10,6 +10,7 @@
 #'
 #' @return A printed list
 #' @export
+#' @importFrom stats pnorm
 #'
 #' @examples
 #' weights <- c(0.25, 0.3, 0.6, 0.15, 0.76, 0.17, 0.23)
@@ -30,7 +31,7 @@ predtest<- function(weights, results, nullphi = 0.50, alpha = 0.05, exact = TRUE
   if (exact == FALSE){
     type = 1
     z <- (teststat - nullphi*(sum(weights)) )/sqrt(nullphi*(1-nullphi)*sum(weights^2))
-    pval <- 1-stats::pnorm(z)
+    pval <- 1-pnorm(z)
     if (pval < alpha)
     {
       decision <- 1
