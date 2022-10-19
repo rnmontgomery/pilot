@@ -25,11 +25,8 @@ predtest<- function(weights, results, nullphi = 0.50, alpha = 0.05, exact = TRUE
   teststat <- as.numeric(weights%*%results)
   correct <- sum(results)
 
-  # Add a part for if weights or if results are NA to use the predweights and predresults function
-  # by adding variable names (for predweights), type and time/gtvar
-
   if (exact == FALSE){
-    type = 1
+    #type = 1
     z <- (teststat - nullphi*(sum(weights)) )/sqrt(nullphi*(1-nullphi)*sum(weights^2))
     pval <- 1-pnorm(z)
     if (pval < alpha)
@@ -40,12 +37,14 @@ predtest<- function(weights, results, nullphi = 0.50, alpha = 0.05, exact = TRUE
     }
   } else if( exact == TRUE & ntests < 25)
   {
-    type = 2
+   # type = 2
     nperm <- 2^ntests
     perms <- as.matrix(expand.grid(rep(list(0:1), ntests)))
     values <- perms%*%as.matrix(weights)
     rank <- as.data.frame(cbind(values,rank(values)))
-    pval <- 1-(rank[which(rank$V1 == as.numeric(teststat)),2]/nperm)
+    #pval <- 1-(rank[which(rank$V1 == as.numeric(teststat)),2]/nperm)
+    pval <- dim(rank[rank$V2>= rank[which(rank$V1 == as.numeric(teststat)),2],])[1]/nperm
+
     if (pval < alpha)
     {
       decision <- 1
@@ -55,20 +54,20 @@ predtest<- function(weights, results, nullphi = 0.50, alpha = 0.05, exact = TRUE
 
   } else if (exact == TRUE & ntests >= 25)
   {
-    type = 2
-    stop("The exact test is only available for 25 or fewer endpoints due to the large number of permutations of the test statistic.")
+    #type = 2
+    stop("The exact test is only available for 25 or fewer endpoints due to computation time. You can edit the source code to remove this limitation")
   }
 
-  x <- list(statistic = teststat, p.value = pval, null.value = nullphi, m = ntests, alpha = alpha, correct = correct, type = type )
+  x <- list(statistic = teststat, p.value = pval, null.value = nullphi, m = ntests, alpha = alpha, correct = correct )
 
 
   print.prediction.test <- function(x){
     cat("\n\t\tResults for the Prediction Test")
 
     cat("\n\nOf the", paste(x$m), " endpoints of interest,", paste(x$correct), "were correctly predicted.")
-    if (x$type == 1){
+    if (exact == FALSE){
       cat("\nCalculated using the normal approximation:")
-    } else if (x$type == 2){
+    } else if (exact == TRUE){
       cat("\nCalculated using the exact distribution:")
     }
     cat("\n----------------------------------------------------------------")
