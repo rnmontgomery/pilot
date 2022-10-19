@@ -2,13 +2,13 @@
 #' Title
 #'
 #' @param dataset Data to be used
-#' @param direction Direction of prediction across endpoints. Increase (all increase), decrease (all decrease), mixed (provide a vector of predictions for each variable)
+#' @param direction Direction of prediction across endpoints. increase (all increase), decrease (all decrease), mixed (provide a vector of predictions for each variable). These are calculated as post-pre or larger group value minus smaller (e.g., with groups of 1 and 0, g1-g0)
 #' @param bound Whether or not a bound will be used
 #' @param variables Endpoints of interest
 #' @param type Type of analysis, pre-post or group
 #' @param gtvar Variable denoting either the group or the time, dependent on type
 #' @param phi_0 The null hypothesized value
-#' @param predictions A matrix with two columns. First column provides the variable names, second column the directional prediction.
+#' @param predictions A matrix with two columns. First column provides the variable names, second column the prediction (increase, decrease or difference).
 #' @param location Measure of central tendency, mean or median
 #'
 #' @return A list of two elements. The first element is an indicator for whether each prediction on a variable was correct, the second element is the observed difference between groups or pre-post.
@@ -43,7 +43,7 @@ predresults <- function(dataset, direction, bound = "wilcoxon", variables, type 
         group_by(!!as.name(gtvar)) %>%
         summarise_at(all_of(variables), median, na.rm = TRUE) -> groupmeans
     }
-    groupmeans <- groupmeans[order(groupmeans$group),] # Prediction calculate as lower group value - higher
+    groupmeans <- groupmeans[order(groupmeans$group, decreasing = TRUE),] # Prediction calculated as higher group minus lower
 
     results <- groupmeans[1,variables] - groupmeans[2,variables]
     differences <- results
