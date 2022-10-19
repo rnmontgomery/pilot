@@ -34,10 +34,7 @@
 
 predweights <- function(data, variables, id, type = "group",timevar, cor = "pearson"){
 
-
-
-
-  if(type == "group")
+    if(type == "group")
   {
     endpoints <- data[, c(variables)]
     samplec <- cor(endpoints, method = cor)
@@ -46,7 +43,6 @@ predweights <- function(data, variables, id, type = "group",timevar, cor = "pear
   }else if( type == "prepost"){
 
     timevard <- data[,timevar]
-
 
     if (!is.numeric(timevard) )
     {
@@ -58,7 +54,7 @@ predweights <- function(data, variables, id, type = "group",timevar, cor = "pear
       stop("Only pre-post data is supported with two unique time values.")
     }
 
-    #  A little hacky but hopefully it works
+    #  A little hacky but  it works
     varlist <- paste0("diff.", variables)
 
     mutatefunc <- function (data,id,column, newname) (
@@ -67,7 +63,6 @@ predweights <- function(data, variables, id, type = "group",timevar, cor = "pear
         dplyr::mutate(!!as.name(newname) := !!as.name(column) - first(!!as.name(column)))
 
     )
-
 
     for ( i in 1:length(variables))
     {

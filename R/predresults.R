@@ -21,8 +21,6 @@
 predresults <- function(dataset, direction, bound = "wilcoxon", variables, type = "group",
                                gtvar,  phi_0 = 0.50, predictions, location = "mean"){
 
-
-
   if (!is.numeric(dataset[,gtvar]) )
   {
     stop("gtvar must be numeric, either a numeric variable for time or group (e.g., group 1 vs group 0).")
