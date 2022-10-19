@@ -14,6 +14,7 @@
 #' @return A list of two elements. The first element is an indicator for whether each prediction on a variable was correct, the second element is the observed difference between groups or pre-post.
 #' @export
 #' @import dplyr
+#' @importFrom robustbase colMedians
 #' @examples
 #'
 #'
@@ -62,7 +63,7 @@ predresults <- function(dataset, direction, bound = "wilcoxon", variables, type 
       for ( j in 1:dim(predictions)[1])
       {
 
-        rules <- predictions[predictions[,1] ==names(results[j]),]
+        rules <- predictions[predictions[,1] == names(results[j]),]
         if (rules[2] == "increase"){
 
           results[j] <- ifelse(results[j] > 0, 1, 0)
@@ -76,6 +77,7 @@ predresults <- function(dataset, direction, bound = "wilcoxon", variables, type 
           if (bound == "wilcoxon")
           {
             split <- dataset[,c(gtvar,names(results[j]))]
+
             split1 <- split[split[,gtvar]==as.numeric(as.character(levels[1])),]
             split2 <- split[split[,gtvar]==as.numeric(as.character(levels[2])),]
 
@@ -96,7 +98,7 @@ predresults <- function(dataset, direction, bound = "wilcoxon", variables, type 
       }
     }
   }else if (type == "prepost"){
-    reference <- factor(dataset$time)[1]
+    reference <- min(dataset$time)
 
     post <- dataset[dataset$time != reference,]
     pre <- dataset[dataset$time == reference,]
@@ -123,14 +125,14 @@ predresults <- function(dataset, direction, bound = "wilcoxon", variables, type 
       {
 
         rules <- predictions[predictions[,1] ==names(results[j]),]
-        if (as.numeric(rules[2]) == 1){
+        if (rules[2] == "increase"){
           results[j] <- ifelse(results[j] > 0, 1, 0)
 
-        }else if (as.numeric(rules[2]) == 2){
+        }else if (rules[2] == "decrease"){
 
           results[j] <- ifelse(results[j] < 0, 1, 0)
 
-        }else if(as.numeric(rules[2]) == 3){
+        }else if(rules[2] == "difference"){
 
           if (bound == "wilcoxon")
           {

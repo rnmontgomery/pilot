@@ -9,6 +9,7 @@
 #'
 #' @return A list of weights, named the original variable names (type: group), or diff.variable name (type: prepost)
 #' @importFrom rlang :=
+#' @import dplyr
 #' @export
 #'
 #' @examples

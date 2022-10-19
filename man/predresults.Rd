@@ -19,7 +19,7 @@ predresults(
 \arguments{
 \item{dataset}{Data to be used}
 
-\item{direction}{Direction of prediction across endpoints}
+\item{direction}{Direction of prediction across endpoints. Increase (all increase), decrease (all decrease), mixed (provide a vector of predictions for each variable)}
 
 \item{bound}{Whether or not a bound will be used}
 
@@ -31,9 +31,12 @@ predresults(
 
 \item{phi_0}{The null hypothesized value}
 
-\item{predictions}{List of predictions}
+\item{predictions}{A matrix with two columns. First column provides the variable names, second column the directional prediction.}
 
 \item{location}{Measure of central tendency, mean or median}
+}
+\value{
+A list of two elements. The first element is an indicator for whether each prediction on a variable was correct, the second element is the observed difference between groups or pre-post.
 }
 \description{
 Title
