@@ -157,7 +157,7 @@ predresults <- function(dataset, direction, bound = "wilcoxon", variables, type 
     }
   }
 
-  outresults <- list(results, differences)
+  outresults <- list(results, differences, variables)
   return(outresults)
 
 }
