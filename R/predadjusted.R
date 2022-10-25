@@ -17,7 +17,7 @@
 #'
 #' @examples
 predadjusted <- function(data, variables, covariates, id, type = "group", gtvar,
-                         phi_0 = 0.50, predictions,  corM = resid){
+                         phi_0 = 0.50, direction, predictions,  corM = "resid"){
 
   nends <- length(variables)
 
@@ -29,22 +29,45 @@ predadjusted <- function(data, variables, covariates, id, type = "group", gtvar,
   if (type == "group"){
     levels <- unique(factor(dataset[,gtvar]))
 
-    for (i in 1:length(nends))
+      if (corM == "resid"){
+
+    results <- matrix(NA,1,nends)
+    resids <- matrix(NA,dim(dataset)[1],nends)
+    for (i in 1:nends)
     {
       v <- as.vector(covariates, mode = "any")
       betas <- paste(v, collapse = "+")
       rowC <- 2+length(covariates)
-      summary(lm(as.formula(paste(variables[i],"~",betas,"+", gtvar, sep = "")), data = dataset))$coefficients[rowC,1]
 
+      x <- summary(lm(as.formula(paste(variables[i],"~",betas,"+", gtvar, sep = "")), data = dataset))
+      results[,i] <- x$coefficients[rowC,1]
+      resids[,i] <- as.vector(resid(x))
     }
+      colnames(results) <- c(variables)
+      weights <- 1/(rowSums(cor(resids)^2))
+
+      if (direction == "increase"){
+        for ( z in 1:length(variables)){
+          results[,c(variables[z])] <- ifelse(results[,c(variables[z])] > 0,1,0 )
+          predictions <- rep(phi_0, length(variables))
+        }
+      }else if (direction == "decrease"){
+        for ( z in 1:length(variables)){
+          results[,c(variables[z])] <- ifelse(results[,c(variables[z])] < 0,1,0 )
+          predictions <- rep(phi_0, length(variables))
+        }
 
     # So far, I've gotten the correct coefficient
     # Next compare to increase/decrease, maybe skip mixed for now (how would difference be defined?)
     # Then get weights, from the resids, so I need to store those actually,
     # Then output the adjusted weights and results which can be passed to the predtest or predboot function.
 
+      } else if (corM == "other")
+      {
 
-  } else if (type = "prepost"){ # type = group
+
+      }
+  } else if (type == "prepost"){ # type = group
 
 
 
@@ -54,7 +77,9 @@ predadjusted <- function(data, variables, covariates, id, type = "group", gtvar,
 
 
 
-
+    outlist <- list(results,weights)
+    return(outlist)
+  }
 
 }
 
