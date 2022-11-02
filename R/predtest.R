@@ -20,9 +20,25 @@
 #' exact <- TRUE
 predtest<- function(weights, results, nullphi = 0.50, alpha = 0.05, exact = TRUE){
 
+  if (is.list(weights) == TRUE)
+  {
+  weights <- unlist(weights)
+  }
+
+  if (is.list(results) == TRUE)
+  {
+    results <- unlist(results)
+  }
+
   ntests <- length(weights)
-  results <- unlist(results)
+
+  if (is.null(dim(weights)) & is.null(dim(results)))
+  {
   teststat <- as.numeric(weights%*%results)
+  }else{
+    teststat <- weights%*%t(results)
+  }
+
   correct <- sum(results)
 
   if (exact == FALSE){
