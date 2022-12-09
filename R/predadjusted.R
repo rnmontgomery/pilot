@@ -21,9 +21,15 @@ predadjusted <- function(data, variables, covariates, id, type = "group", gtvar,
 
   nends <- length(variables)
   n <- dim(dataset)[1] # Assuming data set is in long format
+  levels <- unique(factor(dataset[,gtvar]))
+
 
   if (type == "group"){
-    levels <- unique(factor(dataset[,gtvar]))
+
+    if(length(levels)>2){
+      stop("There are more than two groups.")
+    }
+
 
       if (corM == "resid"){
 
@@ -56,7 +62,6 @@ predadjusted <- function(data, variables, covariates, id, type = "group", gtvar,
       } else if (corM == "sigma")
       {
         results <- matrix(NA,1,nends)
-        resids <- matrix(NA,dim(dataset)[1],nends)
 
           # Building the design matrix
           # Number of columns is 1(Intercept) + number of covariates + variables for group/pre-post
@@ -95,17 +100,44 @@ predadjusted <- function(data, variables, covariates, id, type = "group", gtvar,
       }
   } else if (type == "prepost"){
 
+    if(length(levels)>2){
+      stop("There are more than two time points")
+    }
+
     if (corM == "resid"){
 
-        lmt <- lm(cbind(v1,v2,v3,v4)~age + sex + time, data = buildtestingC)
-  summary(lmt)
 
-  plot()
 
 
 
     }else if (corM == "sigma")
     {
+
+      results <- matrix(NA,1,nends)
+
+      pre <- dataset[dataset[, gtvar] ==  levels[1],]
+      post <- dataset[dataset[, gtvar] ==  levels[2],]
+
+      diff <- post[,variables]-pre[, variables]
+
+      # Building the design matrix
+      # Number of columns is 1(Intercept) + number of covariates
+      Xdesign <- matrix(NA,n, 1+length(covariates) )
+      Xdesign[,1] <- 1
+      Xdesign[,2:(1+length(covariates))] <-  as.matrix(dataset[,covariates])
+
+
+      # Design matrix and response matrix are no the right dimension
+      Ymat <- as.matrix(diff)
+
+      # Beta hat matrix
+      Betahat <- solve(t(Xdesign)%*%Xdesign)%*%t(Xdesign)%*%Ymat
+
+      # Sample covariance matrix:
+      sigmahat <- (t(Ymat)%*%Ymat - t(Betahat)%*%t(Xdesign)%*%Ymat)/(n-length(covariates)-1 )
+
+      # Convert to correlation matrix
+      rhohat <- cov2cor(sigmahat)
 
 
     }
