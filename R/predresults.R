@@ -19,7 +19,7 @@
 #'
 #'
 predresults <- function(dataset, direction, bound = "wilcoxon", variables, type = "group",
-                               gtvar,  phi_0 = 0.50, predictions, location = "mean"){
+                               gtvar,  phi_0 = 0.50, predictions, location = "median"){
 
   if (!is.numeric(dataset[,gtvar]) )
   {
