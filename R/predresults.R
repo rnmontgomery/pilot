@@ -41,7 +41,8 @@ predresults <- function(dataset, direction, bound = "wilcoxon", variables, type 
         group_by(!!as.name(gtvar)) %>%
         summarise_at(all_of(variables), median, na.rm = TRUE) -> groupmeans
     }
-    groupmeans <- groupmeans[order(groupmeans$group, decreasing = TRUE),] # Prediction calculated as higher group minus lower
+    groupmeans <- groupmeans %>%
+      arrange(desc(!!as.name(gtvar))) # Prediction calculated as higher group minus lower
 
     results <- groupmeans[1,variables] - groupmeans[2,variables]
     differences <- results
