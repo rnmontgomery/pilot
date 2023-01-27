@@ -32,17 +32,17 @@
 #'
 #'
 
-predweights <- function(data, variables, id, type = "group",timevar, cor = "pearson"){
+predweights <- function(dataset, variables, id, type = "group",timevar, cor = "pearson"){
 
     if(type == "group")
   {
-    endpoints <- data[, c(variables)]
+    endpoints <- dataset[, c(variables)]
     samplec <- cor(endpoints, method = cor)
     weights <- 1/rowSums(samplec^2)
 
   }else if( type == "prepost"){
 
-    timevard <- data[,timevar]
+    timevard <- dataset[,timevar]
 
     if (!is.numeric(timevard) )
     {
@@ -57,8 +57,8 @@ predweights <- function(data, variables, id, type = "group",timevar, cor = "pear
     #  A little hacky but  it works
     varlist <- paste0("diff.", variables)
 
-    mutatefunc <- function (data,id,column, newname) (
-      data %>%
+    mutatefunc <- function (dataset,id,column, newname) (
+      dataset %>%
         dplyr::group_by(!!as.name(id) ) %>%
         dplyr::mutate(!!as.name(newname) := !!as.name(column) - first(!!as.name(column)))
 
@@ -68,9 +68,9 @@ predweights <- function(data, variables, id, type = "group",timevar, cor = "pear
     {
       vars <- variables[i]
       flist <- varlist[i]
-      data <- mutatefunc(data, id,  column = vars, newname = flist)
+      dataset <- mutatefunc(dataset, id,  column = vars, newname = flist)
     }
-    datadiffs <- data[data[,(timevar)] == unique(timevard)[2],]
+    datadiffs <- dataset[dataset[,(timevar)] == unique(timevard)[2],]
 
 
     samplec <- cor( datadiffs[,c(varlist) ], method = cor)
