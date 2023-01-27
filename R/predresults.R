@@ -97,6 +97,8 @@ predresults <- function(dataset,id, direction, bound = "wilcoxon", variables, ty
       }
     }
   }else if (type == "prepost"){
+    
+    # Need to fix this part, No ID variable and dataset$gtvar is not working.
     reference <- min(dataset$gtvar)
 
     post <- dataset[dataset$gtvar != reference,]
