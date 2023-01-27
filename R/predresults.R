@@ -18,7 +18,7 @@
 #' @examples
 #'
 #'
-predresults <- function(dataset, direction, bound = "wilcoxon", variables, type = "group",
+predresults <- function(dataset,id, direction, bound = "wilcoxon", variables, type = "group",
                                gtvar,  phi_0 = 0.50, predictions, location = "median"){
 
   if (!is.numeric(dataset[,gtvar]) )
@@ -97,10 +97,10 @@ predresults <- function(dataset, direction, bound = "wilcoxon", variables, type 
       }
     }
   }else if (type == "prepost"){
-    reference <- min(dataset$time)
+    reference <- min(dataset$gtvar)
 
-    post <- dataset[dataset$time != reference,]
-    pre <- dataset[dataset$time == reference,]
+    post <- dataset[dataset$gtvar != reference,]
+    pre <- dataset[dataset$gtvar == reference,]
     if (location == "mean")
     {
       results <- colMeans(as.data.frame(post[,variables] - pre[,variables]))

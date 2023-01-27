@@ -32,7 +32,7 @@
 #'
 #'
 
-predweights <- function(dataset, variables, id, type = "group",timevar, cor = "pearson"){
+predweights <- function(dataset, variables, id, type = "group", gtvar, cor = "pearson"){
 
     if(type == "group")
   {
@@ -42,11 +42,11 @@ predweights <- function(dataset, variables, id, type = "group",timevar, cor = "p
 
   }else if( type == "prepost"){
 
-    timevard <- dataset[,timevar]
+    timevard <- dataset[,gtvar]
 
     if (!is.numeric(timevard) )
     {
-      stop("Provide a numeric timevar to indicate pre and post observations.")
+      stop("Provide a numeric 'gtvar' to indicate pre and post observations.")
 
     }
     if( length(unique(timevard)) > 2 ){
@@ -70,7 +70,7 @@ predweights <- function(dataset, variables, id, type = "group",timevar, cor = "p
       flist <- varlist[i]
       dataset <- mutatefunc(dataset, id,  column = vars, newname = flist)
     }
-    datadiffs <- dataset[dataset[,(timevar)] == unique(timevard)[2],]
+    datadiffs <- dataset[dataset[,(gtvar)] == unique(timevard)[2],]
 
 
     samplec <- cor( datadiffs[,c(varlist) ], method = cor)
