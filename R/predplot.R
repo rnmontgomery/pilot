@@ -41,8 +41,6 @@ predplot <- function(predictionresults = results, weights, order = FALSE){
     } else if (order == TRUE){
 
 
-      # This didn;t work
-      forplotO <- forplot[order(diff, decreasing = TRUE),]
 
 
       forplot1 <- ggplot(data = forplot, aes(x=reorder(end, -diff), y=diff, fill = factor(resulted)   )  ) +
@@ -60,7 +58,7 @@ predplot <- function(predictionresults = results, weights, order = FALSE){
   } else {
 
     end <- predictionresults[[3]]
-    diff <- unlist(predictionresults[2])*unlist(wt1)
+    diff <- unlist(predictionresults[2])*unlist(weights)
     resulted <- unlist(predictionresults[1])
 
     forplot <- as.data.frame(   cbind(end, diff  , resulted  )   )
