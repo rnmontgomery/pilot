@@ -54,7 +54,6 @@ predweights <- function(dataset, variables, id, type = "group", gtvar, cor = "pe
       stop("Only pre-post data is supported with two unique time values.")
     }
 
-    #  A little hacky but  it works
     varlist <- paste0("diff.", variables)
 
     mutatefunc <- function (dataset,id,column, newname) (
