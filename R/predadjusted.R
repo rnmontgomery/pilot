@@ -17,11 +17,18 @@
 #'
 #' @examples
 predadjusted <- function(dataset, variables, covariates, id, type = "group", gtvar,
-                         phi_0 = 0.50, direction,  corM = "sigma", location = "median"){
+                         phi_0 = 0.50, direction,predictions,  corM = "sigma", location = "median"){
 
   nends <- length(variables)
   n <- dim(dataset)[1] # Assuming data set is in long format
   levels <- unique(factor(dataset[,gtvar]))
+
+
+  if (!is.numeric(dataset[,gtvar]) )
+  {
+    stop("gtvar must be numeric, either a numeric variable for time or group (e.g., group 1 vs group 0).")
+
+  }
 
 
   if (type == "group"){
@@ -57,6 +64,22 @@ predadjusted <- function(dataset, variables, covariates, id, type = "group", gtv
           results[,c(variables[z])] <- ifelse(results[,c(variables[z])] < 0,1,0 )
           predictions <- rep(phi_0, length(variables))
         }
+      }else if (direction == "mixed"){
+
+        for ( j in 1:dim(predictions)[1])
+        {
+
+          rules <- predictions[predictions[,1] == names(results[j]),]
+          if (rules[2] == "increase"){
+
+            results[j] <- ifelse(results[j] > 0, 1, 0)
+
+          }else if (rules[2] == "decrease"){
+
+            results[j] <- ifelse(results[j] < 0, 1, 0)
+
+          }
+        }
       }
 
       } else if (corM == "sigma")  {
@@ -83,6 +106,8 @@ predadjusted <- function(dataset, variables, covariates, id, type = "group", gtv
 
           results[1,] <- Betahat[dim(Betahat)[1],] # Not sure this is the right row for Betahat??
           colnames(results) <- c(variables)
+
+          differences <- results
           weights <- 1/rowSums(rhohat^2)
 
           if (direction == "increase"){
@@ -95,7 +120,23 @@ predadjusted <- function(dataset, variables, covariates, id, type = "group", gtv
               results[,c(variables[z])] <- ifelse(results[,c(variables[z])] < 0,1,0 )
               predictions <- rep(phi_0, length(variables))
             }
-        }
+          }else if (direction == "mixed"){
+
+            for ( j in 1:dim(predictions)[1])
+            {
+
+              rules <- predictions[predictions[,1] == colnames(results)[j],]
+              if (rules[2] == "increase"){
+
+                results[j] <- ifelse(results[j] > 0, 1, 0)
+
+              }else if (rules[2] == "decrease"){
+
+                results[j] <- ifelse(results[j] < 0, 1, 0)
+
+              }
+            }
+          }
       }
   } else if (type == "prepost"){
 
@@ -106,7 +147,7 @@ predadjusted <- function(dataset, variables, covariates, id, type = "group", gtv
     if (corM == "resid"){
 
 
-      stop("The 'resid' option is only available for between group comparisons.")
+      stop("The 'resid' option is only available for type = 'group'.")
 
 
     }else if (corM == "sigma"){
@@ -167,7 +208,7 @@ predadjusted <- function(dataset, variables, covariates, id, type = "group", gtv
 
       colnames(results) <- c(variables)
       weights <- 1/rowSums(rhohat^2)
-
+      differences <- results
 
 
       if (direction == "increase"){
@@ -191,7 +232,7 @@ predadjusted <- function(dataset, variables, covariates, id, type = "group", gtv
 
     results <- as.vector(results)
     weights <- as.vector(weights)
-    outlist <- list(results,weights, variables)
+    outlist <- list(results,differences, variables, weights)
     return(outlist)
   }
 
