@@ -19,6 +19,8 @@ predadjusted(
 )
 }
 \arguments{
+\item{dataset}{Data set}
+
 \item{variables}{Variables of interest}
 
 \item{covariates}{Covariates}
@@ -27,15 +29,34 @@ predadjusted(
 
 \item{type}{Type of analysis, pre-post, or group comparison}
 
-\item{data}{Data set}
+\item{gtvar}{Variable denoting time, only used for pre-post data}
 
-\item{timevar}{Variable denoting time, only used for pre-post data}
+\item{phi_0}{The null hypothesized predictive ability}
 
-\item{cor}{Method to estimate correlation, sigma uses the estimated covariance matrix from multivariate regression for group and for pre-post the model estimated predictions are subtracted from the raw values and the correlation matrix is calculated from those, resid, uses the residuals (only for group comparisons).  .}
+\item{direction}{Predicted direction, Increase: all increase, Decrease: all decrease, mixed: combination that requires a vector of predictions specifying them for each variable.}
+
+\item{predictions}{An mx2 matrix (m = number of endpoints). Column 1 is the names of the endpoints, Column 2 is the predictions ("Increase" or "Decrease").}
+
+\item{corM}{Method to estimate correlation, sigma uses the estimated covariance matrix from multivariate regression for group and for pre-post the model estimated predictions are subtracted from the raw values and the correlation matrix is calculated from those, resid, uses the residuals (only for group comparisons).}
 }
 \value{
 A list of vectors for results, observed differences, variable names and weights.
 }
 \description{
 Title
+}
+\examples{
+ID <- 1:30
+buildtestingC <- as.data.frame(ID)
+buildtestingC$group <- c(rep(0,15), rep(1,15))
+buildtestingC$age <- rnorm(30,54,6)
+buildtestingC$sex <- rbinom(30,1,0.5)
+buildtestingC$v1 <- rnorm(30, 0, 1)
+buildtestingC$v2 <- rnorm(30, 0, 1)
+buildtestingC$v3 <- rnorm(30, 0, 1)
+buildtestingC$v4 <- rnorm(30, 0, 1)
+predadjusted(dataset = buildtestingC, variables = c("v1", "v2", "v3", "v4"),
+covariates = c("age", "sex"), id = "ID",  type = "group",gtvar = "group",
+phi_0 = 0.50, direction = "increase", corM = "sigma")
+
 }

@@ -9,6 +9,11 @@
 #' @import ggplot2
 #' @importFrom stats sd reorder
 #' @examples
+#' results <- c(1,0,1,1,0,1,1,0)
+#' diffs <- c(0.2, -0.5, 0.1, 1.2, -1, 0.65, 0.3, 0)
+#' variables <- c("A", "B", "C", "D", "E", "F", "G", "H")
+#' fromresults <- list(results, diffs, variables)
+#' predplot(fromresults)
 predplot <- function(predictionresults, weights, order = FALSE){
 
   if (missing(weights))

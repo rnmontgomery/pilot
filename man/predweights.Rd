@@ -34,7 +34,8 @@ buildtesting$v2 <- rnorm(30, 0, 1)
 buildtesting$v3 <- rnorm(30, 0, 1)
 buildtesting$v4 <- rnorm(30, 0, 1)
 
-predweights(dataset= buildtesting, variables = c(V1, V2, V3, V4), id = ID2, type = "group", gtvar = group)
+predweights(dataset= buildtesting, variables = c("v1", "v2", "v3", "v4"),
+ id = "ID2", type = "group", gtvar = "group")
 
 ID2 <- c(rep(1:15,2))
 buildtesting2 <- as.data.frame(ID2)
@@ -44,6 +45,7 @@ buildtesting2$v2 <- rnorm(30, 0, 1)
 buildtesting2$v3 <- rnorm(30, 0, 1)
 buildtesting2$v4 <- rnorm(30, 0, 1)
 
-predweights(dataset= buildtesting2, variables = c(V1, V2, V3, V4), id = ID2, type = "prepost", gtvar = time2)
+predweights(dataset= buildtesting2, variables = c("v1", "v2", "v3", "v4"),
+ id = "ID2", type = "prepost", gtvar = "time2")
 
 }

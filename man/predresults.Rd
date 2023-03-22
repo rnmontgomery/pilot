@@ -42,3 +42,15 @@ A list of two elements. The first element is an indicator for whether each predi
 \description{
 Title
 }
+\examples{
+ID <- 1:30
+buildtesting <- as.data.frame(ID)
+buildtesting$group <- c(rep(0,15), rep(1,15))
+buildtesting$v1 <- rnorm(30, 0, 1)
+buildtesting$v2 <- rnorm(30, 0, 1)
+buildtesting$v3 <- rnorm(30, 0, 1)
+buildtesting$v4 <- rnorm(30, 0, 1)
+predresults(dataset = buildtesting, direction = "increase",
+variables = c("v1", "v2", "v3", "v4"), type = "group",gtvar = "group")
+
+}
