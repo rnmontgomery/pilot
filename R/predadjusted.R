@@ -11,11 +11,14 @@
 #' @param timevar Variable denoting time, only used for pre-post data
 #' @param type Type of analysis, pre-post, or group comparison
 #' @param cor Method to estimate correlation, sigma uses the estimated covariance matrix from multivariate regression for group and for pre-post the model estimated predictions are subtracted from the raw values and the correlation matrix is calculated from those, resid, uses the residuals (only for group comparisons).  .
-#'
-#' @return
+#' @importFrom stats lm as.formula resid cor cov2cor median
+#' @return A list of vectors for results, observed differences, variable names and weights.
 #' @export
 #'
 #' @examples
+#'
+#'
+#'
 predadjusted <- function(dataset, variables, covariates, id, type = "group", gtvar,
                          phi_0 = 0.50, direction,predictions,  corM = "sigma", location = "median"){
 
@@ -53,6 +56,8 @@ predadjusted <- function(dataset, variables, covariates, id, type = "group", gtv
     }
       colnames(results) <- c(variables)
       weights <- 1/(rowSums(cor(resids)^2))
+      differences <- results
+
 
       if (direction == "increase"){
         for ( z in 1:length(variables)){
@@ -69,7 +74,7 @@ predadjusted <- function(dataset, variables, covariates, id, type = "group", gtv
         for ( j in 1:dim(predictions)[1])
         {
 
-          rules <- predictions[predictions[,1] == names(results[j]),]
+          rules <- predictions[predictions[,1] == colnames(results)[j],]
           if (rules[2] == "increase"){
 
             results[j] <- ifelse(results[j] > 0, 1, 0)
@@ -232,7 +237,7 @@ predadjusted <- function(dataset, variables, covariates, id, type = "group", gtv
 
     results <- as.vector(results)
     weights <- as.vector(weights)
-    outlist <- list(results,differences, variables, weights)
+    outlist <- list(results, differences, variables, weights)
     return(outlist)
   }
 

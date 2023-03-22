@@ -15,6 +15,7 @@
 #' @export
 #' @import dplyr
 #' @importFrom robustbase colMedians
+#' @importFrom stats wilcox.test qnorm
 #' @examples
 #'
 #'
@@ -97,7 +98,7 @@ predresults <- function(dataset,id, direction, bound = "wilcoxon", variables, ty
       }
     }
   }else if (type == "prepost"){
-    
+
     # Need to fix this part, No ID variable and dataset$gtvar is not working.
     reference <- min(dataset$gtvar)
 

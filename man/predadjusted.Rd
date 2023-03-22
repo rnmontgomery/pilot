@@ -5,29 +5,36 @@
 \title{Title}
 \usage{
 predadjusted(
-  data,
+  dataset,
   variables,
   covariates,
   id,
-  timevar,
   type = "group",
-  cor = "pearson"
+  gtvar,
+  phi_0 = 0.5,
+  direction,
+  predictions,
+  corM = "sigma",
+  location = "median"
 )
 }
 \arguments{
-\item{data}{Data set}
-
 \item{variables}{Variables of interest}
 
-\item{covariates}{Covariates to adjust for}
+\item{covariates}{Covariates}
 
 \item{id}{Id variable}
 
-\item{timevar}{Variable denoting time, only used for pre-post data}
-
 \item{type}{Type of analysis, pre-post, or group comparison}
 
-\item{cor}{Type of correlation, default is Pearson}
+\item{data}{Data set}
+
+\item{timevar}{Variable denoting time, only used for pre-post data}
+
+\item{cor}{Method to estimate correlation, sigma uses the estimated covariance matrix from multivariate regression for group and for pre-post the model estimated predictions are subtracted from the raw values and the correlation matrix is calculated from those, resid, uses the residuals (only for group comparisons).  .}
+}
+\value{
+A list of vectors for results, observed differences, variable names and weights.
 }
 \description{
 Title

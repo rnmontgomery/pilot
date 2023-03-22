@@ -6,8 +6,8 @@
 #' @param nullphi The null hypothesized phi value
 #' @param alpha The type I error rate
 #' @param sims The number of bootstrap simulations
-#'
-#' @return
+#' @importFrom stats rbinom
+#' @return A list of outputs from the bootstrap test.
 #' @export
 #'
 #' @examples

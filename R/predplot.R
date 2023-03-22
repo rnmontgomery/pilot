@@ -7,9 +7,9 @@
 #' @return A plot
 #' @export
 #' @import ggplot2
-#'
+#' @importFrom stats sd reorder
 #' @examples
-predplot <- function(predictionresults = results, weights, order = FALSE){
+predplot <- function(predictionresults, weights, order = FALSE){
 
   if (missing(weights))
   {

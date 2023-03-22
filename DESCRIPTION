@@ -8,9 +8,12 @@ Description: Package that provides tools (e.g., the prediction test) that are us
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Imports: 
     dplyr,
     rlang,
     robustbase,
-    ggplot2
+    ggplot2,
+    lme4
+Depends: 
+    R (>= 2.10)

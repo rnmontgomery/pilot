@@ -4,20 +4,20 @@
 \alias{predweights}
 \title{Title}
 \usage{
-predweights(data, variables, id, type = "group", timevar, cor = "pearson")
+predweights(dataset, variables, id, type = "group", gtvar, cor = "pearson")
 }
 \arguments{
-\item{data}{Data set}
-
 \item{variables}{Variables in the data set you want to include (only endpoints)}
 
 \item{id}{The ID variable from the data set}
 
 \item{type}{The type of analysis (pre-post or between groups)}
 
-\item{timevar}{The time variable from the data set}
-
 \item{cor}{Type of correlation, default is pearson}
+
+\item{data}{Data set}
+
+\item{timevar}{The time variable from the data set}
 }
 \value{
 A list of weights, named the original variable names (type: group), or diff.variable name (type: prepost)
@@ -34,6 +34,8 @@ buildtesting$v2 <- rnorm(30, 0, 1)
 buildtesting$v3 <- rnorm(30, 0, 1)
 buildtesting$v4 <- rnorm(30, 0, 1)
 
+predweights(dataset= buildtesting, variables = c(V1, V2, V3, V4), id = ID2, type = "group", gtvar = group)
+
 ID2 <- c(rep(1:15,2))
 buildtesting2 <- as.data.frame(ID2)
 buildtesting2$time2 <- c(rep(0,15), rep(12,15))
@@ -42,6 +44,6 @@ buildtesting2$v2 <- rnorm(30, 0, 1)
 buildtesting2$v3 <- rnorm(30, 0, 1)
 buildtesting2$v4 <- rnorm(30, 0, 1)
 
-
+predweights(dataset= buildtesting2, variables = c(V1, V2, V3, V4), id = ID2, type = "prepost", gtvar = time2)
 
 }

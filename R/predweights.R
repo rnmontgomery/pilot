@@ -11,7 +11,7 @@
 #' @importFrom rlang :=
 #' @import dplyr
 #' @export
-#'
+#' @importFrom lme4 lmer
 #' @examples
 #' ID <- 1:30
 #' buildtesting <- as.data.frame(ID)
@@ -21,6 +21,8 @@
 #' buildtesting$v3 <- rnorm(30, 0, 1)
 #' buildtesting$v4 <- rnorm(30, 0, 1)
 #'
+#' predweights(dataset= buildtesting, variables = c(V1, V2, V3, V4), id = ID2, type = "group", gtvar = group)
+#'
 #' ID2 <- c(rep(1:15,2))
 #' buildtesting2 <- as.data.frame(ID2)
 #' buildtesting2$time2 <- c(rep(0,15), rep(12,15))
@@ -29,7 +31,7 @@
 #' buildtesting2$v3 <- rnorm(30, 0, 1)
 #' buildtesting2$v4 <- rnorm(30, 0, 1)
 #'
-#'
+#' predweights(dataset= buildtesting2, variables = c(V1, V2, V3, V4), id = ID2, type = "prepost", gtvar = time2)
 #'
 
 predweights <- function(dataset, variables, id, type = "group", gtvar, cor = "pearson"){

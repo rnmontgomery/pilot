@@ -6,6 +6,7 @@
 \usage{
 predresults(
   dataset,
+  id,
   direction,
   bound = "wilcoxon",
   variables,
@@ -13,13 +14,13 @@ predresults(
   gtvar,
   phi_0 = 0.5,
   predictions,
-  location = "mean"
+  location = "median"
 )
 }
 \arguments{
 \item{dataset}{Data to be used}
 
-\item{direction}{Direction of prediction across endpoints. Increase (all increase), decrease (all decrease), mixed (provide a vector of predictions for each variable)}
+\item{direction}{Direction of prediction across endpoints. increase (all increase), decrease (all decrease), mixed (provide a vector of predictions for each variable). These are calculated as post-pre or larger group value minus smaller (e.g., with groups of 1 and 0, g1-g0)}
 
 \item{bound}{Whether or not a bound will be used}
 
@@ -31,7 +32,7 @@ predresults(
 
 \item{phi_0}{The null hypothesized value}
 
-\item{predictions}{A matrix with two columns. First column provides the variable names, second column the directional prediction.}
+\item{predictions}{A matrix with two columns. First column provides the variable names, second column the prediction (increase, decrease or difference).}
 
 \item{location}{Measure of central tendency, mean or median}
 }

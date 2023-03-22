@@ -4,7 +4,7 @@
 \alias{predplot}
 \title{Title}
 \usage{
-predplot(predictionresults = results)
+predplot(predictionresults, weights, order = FALSE)
 }
 \arguments{
 \item{predictionresults}{Output from the results function.}
