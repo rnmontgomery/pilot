@@ -20,6 +20,8 @@ predresults(
 \arguments{
 \item{dataset}{Data to be used}
 
+\item{id}{A variable indicating the id of each subject, not required for type = 'group'.}
+
 \item{direction}{Direction of prediction across endpoints. increase (all increase), decrease (all decrease), mixed (provide a vector of predictions for each variable). These are calculated as post-pre or larger group value minus smaller (e.g., with groups of 1 and 0, g1-g0)}
 
 \item{bound}{Whether or not a bound will be used}

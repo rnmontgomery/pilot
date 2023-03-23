@@ -1,9 +1,9 @@
 #' Title
 #'
-#' @param data Data set
+#' @param dataset Data set
 #' @param variables Variables in the data set you want to include (only endpoints)
 #' @param id The ID variable from the data set
-#' @param timevar The time variable from the data set
+#' @param gtvar The group or time variable from the data set
 #' @param type The type of analysis (pre-post or between groups)
 #' @param cor Type of correlation, default is pearson
 #'

@@ -4,7 +4,7 @@ Title: Statistical methods for pilot data
 Version: 0.1.0
 Author: Neal Montgomery
 Maintainer: Neal Montgomery <rnmontgomery@kumc.edu>
-Description: Package that provides tools (e.g., the prediction test) that are useful in pilot analyses.
+Description: Package that provides tools (e.g., the prediction test) for pilot analyses.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

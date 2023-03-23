@@ -9,6 +9,7 @@
 #' @param covariates Covariates
 #' @param id Id variable
 #' @param gtvar Variable denoting time, only used for pre-post data
+#' @param location The measure of central tendency (mean or median) used to evaluate the predictions.
 #' @param type Type of analysis, pre-post, or group comparison
 #' @param corM Method to estimate correlation, sigma uses the estimated covariance matrix from multivariate regression for group and for pre-post the model estimated predictions are subtracted from the raw values and the correlation matrix is calculated from those, resid, uses the residuals (only for group comparisons).
 #' @param phi_0 The null hypothesized predictive ability

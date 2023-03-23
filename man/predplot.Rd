@@ -7,7 +7,11 @@
 predplot(predictionresults, weights, order = FALSE)
 }
 \arguments{
-\item{predictionresults}{Output from the results function.}
+\item{predictionresults}{A list, typically the output from the predresults function.}
+
+\item{weights}{An optional vector of weights for the endpoints}
+
+\item{order}{Whether to order the endpoints from largest to smallest}
 }
 \value{
 A plot

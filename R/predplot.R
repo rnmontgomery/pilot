@@ -2,8 +2,9 @@
 
 #' Title
 #'
-#' @param predictionresults Output from the results function.
-#'
+#' @param predictionresults A list, typically the output from the predresults function.
+#' @param weights An optional vector of weights for the endpoints
+#' @param order Whether to order the endpoints from largest to smallest
 #' @return A plot
 #' @export
 #' @import ggplot2

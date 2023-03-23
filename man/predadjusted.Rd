@@ -38,6 +38,8 @@ predadjusted(
 \item{predictions}{An mx2 matrix (m = number of endpoints). Column 1 is the names of the endpoints, Column 2 is the predictions ("Increase" or "Decrease").}
 
 \item{corM}{Method to estimate correlation, sigma uses the estimated covariance matrix from multivariate regression for group and for pre-post the model estimated predictions are subtracted from the raw values and the correlation matrix is calculated from those, resid, uses the residuals (only for group comparisons).}
+
+\item{location}{The measure of central tendency (mean or median) used to evaluate the predictions.}
 }
 \value{
 A list of vectors for results, observed differences, variable names and weights.

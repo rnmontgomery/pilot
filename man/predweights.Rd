@@ -7,17 +7,17 @@
 predweights(dataset, variables, id, type = "group", gtvar, cor = "pearson")
 }
 \arguments{
+\item{dataset}{Data set}
+
 \item{variables}{Variables in the data set you want to include (only endpoints)}
 
 \item{id}{The ID variable from the data set}
 
 \item{type}{The type of analysis (pre-post or between groups)}
 
+\item{gtvar}{The group or time variable from the data set}
+
 \item{cor}{Type of correlation, default is pearson}
-
-\item{data}{Data set}
-
-\item{timevar}{The time variable from the data set}
 }
 \value{
 A list of weights, named the original variable names (type: group), or diff.variable name (type: prepost)
