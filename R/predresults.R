@@ -90,9 +90,6 @@ predresults <- function(dataset,
     pre_data <- df[df[[time]] == pre, ]
     post_data <- df[df[[time]] == post, ]
 
-    # Identify the columns to compare
-    cols_to_compare <- c(id, variables)
-
     # Merge pre and post data by the ID column
     merged_data <- merge(pre_data, post_data, by = id, suffixes = c("_pre", "_post"))
 
