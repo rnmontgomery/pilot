@@ -60,15 +60,36 @@ predresults <- function(dataset,
     )
   }
 
-  # below are nested functions to be assigned to the difference and results vectors
+  # NESTED FUNCTIONS
 
-  # calculates the mean or median difference betwween two specifed groups
-  group_diff <- function(df, grp_col, location='median', grp_1, grp_2, variables) {
+  # The following functions filter the dataset into two groups
+  filter_by_group_var <- function(df, grp_var, grp_1, grp_2, vars){
     # Subset the data by group with only the column variables mentioned in ...
-    grp_1_data <- df[df[[grp_col]] == grp_1, variables]
-    grp_2_data <- df[df[[grp_col]] == grp_2, variables]
+    grp_1_vars <- df[df[[grp_var]] == grp_1, vars]
+    grp_2_vars <- df[df[[grp_var]] == grp_2, vars]
+    # place the data frames into a list and return it
+    return(list(grp_1_vars = grp_1_vars, grp_2_vars = grp_2_vars))
+  }
 
-    # calculate either the mean or median for each column variable
+  filter_by_time_var <- function(df, id, time_var, pre, post, vars){
+    # Separates the pre and post results into separate dfs
+    grp_pre <- df[df[time_var] == pre, ]
+    grp_post <- df[df[time_var] == post, ]
+    # Place in ascending order, so that the ids are in the same row
+    # COULD USE SOME ERROR HANDLING HERE TO MAKE SURE THE IDS ARE IDENTICAL
+    sorted_grp_pre <- grp_pre[order(grp_pre[[id]]), ]
+    sorted_grp_post <- grp_post[order(grp_post[[id]]), ]
+    # Filters such that only the chosen variables in vars are present
+    # in each data frame
+    pre_vars <- sorted_grp_pre[vars]
+    post_vars <- sorted_grp_post[vars]
+    return(list(pre_vars = pre_vars, post_vars = post_vars))
+  }
+
+  # takes either the mean or median of each variable in two data frames
+  # returns a vector of the difference between the two.
+  # location of grp_2_data - location of grp_1_data
+  create_difference_vector <- function(grp_1_data, grp_2_data, location){
     if (location == 'mean') {
       grp_1_means <- colMeans(grp_1_data)
       grp_2_means <- colMeans(grp_2_data)
@@ -82,45 +103,12 @@ predresults <- function(dataset,
     }
   }
 
-  # calculates the mean or median difference between two specifed times for each
-  # unique id identified by the user 
-  pre_post_diff <- function(df, id, time, location='median', pre, post, variables) {
-
-    # Subset the data for pre and post time points
-    pre_data <- df[df[[time]] == pre, ]
-    post_data <- df[df[[time]] == post, ]
-
-    # Merge pre and post data by the ID column
-    merged_data <- merge(pre_data, post_data, by = id, suffixes = c("_pre", "_post"))
-
-    # new data frame for differences
-    differences_by_id <- data.frame(
-      id = merged_data[[id]]
-    )
-
-    # Calculate differences for each specified column
-    for (col_name in variables) {
-      col_name <- as.character(col_name)
-      differences_by_id[[paste0(col_name, "difference")]] <- merged_data[[paste0(col_name, "_post")]] - merged_data[[paste0(col_name, "_pre")]]
-    }
-
-    columns_of_interest <- differences_by_id[, -1]
-    # calculate either the mean or median for each column variable
-    if (location == 'mean') {
-      var_means <- colMeans(columns_of_interest)
-      return(unname(as.vector(var_means)))
-    } else if (location == 'median') {
-      var_medians <- apply(columns_of_interest, 2, median)
-      return(unname(as.vector(var_medians)))
-    }
-
-  }
-
-  # calculates the result vector given the differences 
+  # function to obtain the results
+  # will have added feature for mixed
   create_results_vector <- function(diff_vector, prediction) {
 
     valid_predictions <- c('increase', 'decrease', 'mixed') # Valid prediction values
-
+    
     if (!(prediction %in% valid_predictions)) {
       stop("prediction argument needs to be 'increase' or 'decrease'")
     }
@@ -134,21 +122,23 @@ predresults <- function(dataset,
 
     return(results)
   }
-  # end of nested functions 
-  
-  # call nested functions to meet user's request to create differencess and results vectors
+
+  # assigns the filtered data frames to the variables df_a or df_b, based on type
   if (type == "group") {
-    differences <- group_diff(dataset, gtvar, location, a, b, variables)
+    dfs = filter_by_group_var(dataset, gtvar, a, b, variables)
+    df_a <- dfs$grp_1_vars
+    df_b <- dfs$grp_2_vars
   } else if (type == "prepost") {
-    differences <- pre_post_diff(dataset, id, gtvar, location, a, b, variables)
+    dfs = filter_by_time_var(dataset, id, gtvar, a, b, variables)
+    df_a <- dfs$pre_vars
+    df_b <- dfs$post_vars
   }
 
-  results = create_results_vector(differences, direction)
-
-  list_to_plot <- list(results, differences, variables)
+  diff_vector <- create_difference_vector(df_a, df_b, location)
+  results <- create_results_vector(diff_vector, direction)
+  list_to_plot <- list(results, diff_vector, variables)
   return(list_to_plot)
 }
-
 # Call predresults for groups
 predresults(dataset = buildtestinggroup, direction="decrease",variables = c("v1","v2", "v3", "v4"), type="group", gtvar="group", a=0, b=12)
 
