@@ -36,51 +36,63 @@
 #'  id = "ID2", type = "prepost", gtvar = "time2")
 #'
 
-predweights <- function(dataset, variables, id, type = "group", gtvar, cor = "pearson"){
-
-    if(type == "group")
-  {
-    endpoints <- dataset[, c(variables)]
-    samplec <- cor(endpoints, method = cor)
-    weights <- 1/rowSums(samplec^2)
-
-  }else if( type == "prepost"){
-
-    timevard <- dataset[,gtvar]
-
-    if (!is.numeric(timevard) )
-    {
-      stop("Provide a numeric 'gtvar' to indicate pre and post observations.")
-
+predweights <-
+    function(dataset,
+             variables,
+             id,
+             type = "group",
+             gtvar,
+             cor = "pearson") {
+        if (type == "group") {
+            endpoints <- dataset[, c(variables)]
+            samplec <- cor(endpoints, method = cor)
+            weights <- 1 / rowSums(samplec ^ 2)
+        } else if (type == "prepost") {
+            # libraries start here
+            timevard <- dataset[, gtvar]
+            if (!is.numeric(timevard)) {
+                stop("Provide a numeric 'gtvar' to indicate pre and post observations.")
+            }
+            if (length(unique(timevard)) > 2) {
+                stop("Only pre-post data is supported with two unique time values.")
+            }
+            
+            varlist <- paste0("diff.", variables)
+            
+            mutatefunc <- function(dataset, id, column, newname) {
+                
+                result_df <- dataset
+                groups <- split(dataset[[column]], dataset[[id]])
+                
+                # first col values within each group
+                first_col_values <- sapply(groups, function(group) group[1])
+                
+                # assigns difference to new col 
+                result_df[[newname]] <- unlist(lapply(dataset[[id]], function(group_id) {
+                    dataset[[column]] - first_values[group_id]
+                }))
+                
+                return(result_df)
+            }
+            
+            for (i in 1:length(variables)) {
+                vars <- variables[i]
+                flist <- varlist[i]
+                dataset <-
+                    mutatefunc(dataset,
+                               id,
+                               column = vars,
+                               newname = flist)
+            }
+            datadiffs <-
+                dataset[dataset[, (gtvar)] == unique(timevard)[2], ]
+            
+            
+            samplec <- cor(datadiffs[, c(varlist)], method = cor)
+            weights <- 1 / rowSums(samplec ^ 2)
+            
+        }
+        
+        outweight <- list(weights)
+        return(outweight)
     }
-    if( length(unique(timevard)) > 2 ){
-
-      stop("Only pre-post data is supported with two unique time values.")
-    }
-
-    varlist <- paste0("diff.", variables)
-
-    mutatefunc <- function (dataset,id,column, newname) (
-      dataset %>%
-        dplyr::group_by(!!as.name(id) ) %>%
-        dplyr::mutate(!!as.name(newname) := !!as.name(column) - first(!!as.name(column)))
-
-    )
-
-    for ( i in 1:length(variables))
-    {
-      vars <- variables[i]
-      flist <- varlist[i]
-      dataset <- mutatefunc(dataset, id,  column = vars, newname = flist)
-    }
-    datadiffs <- dataset[dataset[,(gtvar)] == unique(timevard)[2],]
-
-
-    samplec <- cor( datadiffs[,c(varlist) ], method = cor)
-    weights <- 1/rowSums(samplec^2)
-
-  }
-  outweight <- list(weights)
-  return(outweight)
-}
-
