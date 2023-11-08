@@ -36,63 +36,103 @@
 #'  id = "ID2", type = "prepost", gtvar = "time2")
 #'
 
-predweights <-
-    function(dataset,
-             variables,
-             id,
-             type = "group",
-             gtvar,
-             cor = "pearson") {
-        if (type == "group") {
-            endpoints <- dataset[, c(variables)]
-            samplec <- cor(endpoints, method = cor)
-            weights <- 1 / rowSums(samplec ^ 2)
-        } else if (type == "prepost") {
-            # libraries start here
-            timevard <- dataset[, gtvar]
-            if (!is.numeric(timevard)) {
-                stop("Provide a numeric 'gtvar' to indicate pre and post observations.")
-            }
-            if (length(unique(timevard)) > 2) {
-                stop("Only pre-post data is supported with two unique time values.")
-            }
-            
-            varlist <- paste0("diff.", variables)
-            
-            mutatefunc <- function(dataset, id, column, newname) {
-                
-                result_df <- dataset
-                groups <- split(dataset[[column]], dataset[[id]])
-                
-                # first col values within each group
-                first_col_values <- sapply(groups, function(group) group[1])
-                
-                # assigns difference to new col 
-                result_df[[newname]] <- unlist(lapply(dataset[[id]], function(group_id) {
-                    dataset[[column]] - first_values[group_id]
-                }))
-                
-                return(result_df)
-            }
-            
-            for (i in 1:length(variables)) {
-                vars <- variables[i]
-                flist <- varlist[i]
-                dataset <-
-                    mutatefunc(dataset,
-                               id,
-                               column = vars,
-                               newname = flist)
-            }
-            datadiffs <-
-                dataset[dataset[, (gtvar)] == unique(timevard)[2], ]
-            
-            
-            samplec <- cor(datadiffs[, c(varlist)], method = cor)
-            weights <- 1 / rowSums(samplec ^ 2)
-            
-        }
-        
-        outweight <- list(weights)
-        return(outweight)
+
+predweights <- function(dataset, variables, id, type = "group", pre=NULL, post=NULL, gtvar, cor = "pearson"){
+
+    if(type == "group")
+  {
+    endpoints <- dataset[, c(variables)]
+    samplec <- cor(endpoints, method = cor)
+    weights <- 1/rowSums(samplec^2)
+
+  }else if( type == "prepost"){
+    
+    # BELOW IS THE ORIGINAL CODE WITH DPLYR 
+
+    # timevard <- dataset[,gtvar]
+    #
+    # if (!is.numeric(timevard) )
+    # {
+    #   stop("Provide a numeric 'gtvar' to indicate pre and post observations.")
+    #
+    # }
+    # if( length(unique(timevard)) > 2 ){
+    #
+    #   stop("Only pre-post data is supported with two unique time values.")
+    # }
+    #
+    # varlist <- paste0("diff.", variables)
+    #
+    # mutatefunc <- function (dataset,id,column, newname) (
+    #   dataset %>%
+    #     dplyr::group_by(!!as.name(id) ) %>%
+    #     dplyr::mutate(!!as.name(newname) := !!as.name(column) - first(!!as.name(column)))
+    #
+    # )
+    #
+    # for ( i in 1:length(variables))
+    # {
+    #   vars <- variables[i]
+    #   flist <- varlist[i]
+    #   dataset <- mutatefunc(dataset, id,  column = vars, newname = flist)
+    # }
+    # datadiffs <- dataset[dataset[,(gtvar)] == unique(timevard)[2],]
+
+
+    ### this is repetitive code and needs to be imported
+
+    filter_by_time_var <- function(df, id, time_var, pre, post, vars){
+      # Separates the pre and post results into separate dfs
+      grp_pre <- df[df[time_var] == pre, ]
+      grp_post <- df[df[time_var] == post, ]
+      # Place in ascending order, so that the ids are in the same row
+      # COULD USE SOME ERROR HANDLING HERE TO MAKE SURE THE IDS ARE IDENTICAL... do unit test
+      sorted_grp_pre <- grp_pre[order(grp_pre[[id]]), ]
+      sorted_grp_post <- grp_post[order(grp_post[[id]]), ]
+      # Filters such that only the chosen variables in vars are present
+      # in each data frame
+      pre_vars <- sorted_grp_pre[vars]
+      post_vars <- sorted_grp_post[vars]
+      return(list(pre_vars = pre_vars, post_vars = post_vars))
     }
+
+    # takes either the mean or median of each variable in two data frames
+    # returns a vector of the difference between the two.
+    # location of grp_2_data - location of grp_1_data
+    
+    # not sure if needed, assumes location 
+    create_difference_vector <- function(grp_1_data, grp_2_data, location){
+      if (location == 'mean') {
+        grp_1_means <- colMeans(grp_1_data)
+        grp_2_means <- colMeans(grp_2_data)
+        differences <- grp_2_means - grp_1_means
+        return(unname(as.vector(differences)))
+      } else if (location == 'median') {
+        grp_1_medians <- apply(grp_1_data, 2, median)
+        grp_2_medians <- apply(grp_2_data, 2, median)
+        differences <- grp_2_medians - grp_1_medians
+        return(unname(as.vector(differences)))
+      }
+    }
+    
+    if (type == "prepost") {
+      dfs = filter_by_time_var(dataset, id, gtvar, pre, post, variables)
+      df_a <- dfs$pre_vars
+      df_b <- dfs$post_vars
+    }
+    
+    # subtracting df_a from df_b, but not their locations 
+    # if location matters then we can use the create_differnce_vector 
+    difference = df_b - df_a
+
+    # different 
+    samplec <- cor( difference, method = cor)
+
+    weights <- 1/rowSums(samplec^2)
+
+  }
+
+  outweight <- list(weights)
+  return(outweight)
+}
+
