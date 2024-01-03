@@ -1,40 +1,45 @@
+# Set working directory
+setwd('/userInfo')
 
 # import external functions and data
 source("custom_functions.R")
 source("example_data.R")
 
+#' @param dataset The input dataset.
+#' @param id Identifier variable for pre/post type. Default is NULL.
+#' @param hypothesis The hypotheses to test. Can be a string or a vector of strings, including "increase", "decrease", or "different".
+#' @param bound The method for testing differences. Options are "wilcoxon" or "t". Default is "wilcoxon".
+#' @param variables The variables on which the hypotheses are based.
+#' @param type The type of analysis. Options are "group" or "prepost". Default is "group".
+#' @param gtvar The grouping or time variable for analysis.
+#' @param a The value for the first group or the starting time point for pre/post type. Default is NULL.
+#' @param b The value for the second group or the ending time point for pre/post type. Default is NULL.
+#' @param phi_0 The null hypothesis threshold. Default is 0.50.
+#' @param location The location measure for creating difference vector. Options are "mean" or "median". Default is "median".
+#'
+#' @return A list containing the predicted results, difference vector, and the variables.
+#'
 
-#' Title
-#'
-#' @param dataset Data to be used
-#' @param id A variable indicating the id of each subject, not required for type = 'group'.
-#' @param direction Direction of prediction across endpoints. increase (all increase), decrease (all decrease), mixed (provide a vector of predictions for each variable). These are calculated as post-pre or larger group value minus smaller (e.g., with groups of 1 and 0, g1-g0)
-#' @param bound Whether or not a bound will be used
-#' @param variables Endpoints of interest
-#' @param type Type of analysis, pre-post or group
-#' @param gtvar Variable denoting either the group or the time, dependent on type
-#' @param phi_0 The null hypothesized value
-#' @param predictions A matrix with two columns. First column provides the variable names, second column the prediction (increase, decrease or difference).
-#' @param location Measure of central tendency, mean or median
-#'
-#' @return A list of two elements. The first element is an indicator for whether each prediction on a variable was correct, the second element is the observed difference between groups or pre-post.
-#' @export
-#' @importFrom stats wilcox.test qnorm
 #' @examples
+#' # Call predresults for groups
+#predresults(dataset = buildtesting, hypothesis="decrease",variables = c("v1","v2", "v3", "v4"), type="group", gtvar="group", a=0, b=1)
+# Call predresults for pre/post
+#predresults(dataset = buildtesting2, id="ID2", hypothesis="increase", variables = c("v1", "v3"), type="prepost", gtvar="time2",a=0, b=12, location="mean")
+# call using the difference tests
+#predresults(dataset = buildtesting2, id="ID2", hypothesis=c("increase","different"), variables = c("v1", "v3"), type="prepost", gtvar="time2",a=0, b=12, location="mean")
 
+#'@export
 
-# the start of the predresults function
 predresults <- function(dataset,
-                        id,
-                        direction,
+                        id=NULL,
+                        hypothesis,
                         bound = "wilcoxon",
                         variables,
                         type = "group",
                         gtvar,
-                        a,
-                        b,
+                        a=NULL,
+                        b=NULL,
                         phi_0 = 0.50,
-                        predictions,
                         location = "median") {
 
   # error handling
@@ -44,7 +49,8 @@ predresults <- function(dataset,
     )
   }
 
-  # assigns the filtered data frames to the variables df_a or df_b, based on type
+  # assigns the filtered data frames to the variables df_a or df_b,
+  # based on if type is "group" or "prepost"
   if (type == "group") {
     dfs = filter_by_group_var(dataset, gtvar, a, b, variables)
     df_a <- dfs$grp_1_vars
@@ -55,32 +61,10 @@ predresults <- function(dataset,
     df_b <- dfs$post_vars
   }
 
-  direction_vector <- rep(direction, length(variables))
-  diff_vector <- create_difference_vector(df_a, df_b, location)
+  diff_vector <- create_difference_vector(df_a, df_b, location) # vector of the differences between groups
+  # a vector of 1s (correctly predicted) and 0s (incorrectly predicted)
+  results = get_results_vector(hypothesis, variables, diff_vector, diff_method=bound, grp_a=df_a, grp_b=df_b) # grp_a/b don't need to be defined here, but it doesn't do anything if they are
 
-  if (!missing(direction)) {
-    # Calculate 'results' using 'direction_vector' and 'diff_vector'
-    results <- create_results_vector(direction_vector, diff_vector)
-  } else if (!missing(predictions)) {
-    # Calculate 'results' using 'predictions', 'diff_vector', and other arguments
-    results <- create_results_vector(predictions, diff_vector, diff_method = bound, group_a = a, group_b = b, phi_0 = phi_0)
-  } else {
-    # error handling. Needs more updates. Could be placed at the start of the function
-    stop("Either predictions or direction must be filled.")
-  }
-  # might be unnecessary
-  # results <- create_results_vector(direction_vector,diff_vector)
-  list_to_plot <- list(results, diff_vector, variables)
+  list_to_plot <- list(results, diff_vector, variables) #col vars with desired for each one
   return(list_to_plot)
 }
-# Call predresults for groups
-predresults(dataset = buildtestinggroup, direction="decrease",variables = c("v1","v2", "v3", "v4"), type="group", gtvar="group", a=0, b=12)
-
-# Call predresults for pre/post
-predresults(dataset = buildtesting2, id="ID2", direction="increase", variables = c("v1", "v3"), type="prepost", gtvar="time2",a=0, b=12, location="mean")
-
-# call using the difference tests
-
-
-
-
