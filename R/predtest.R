@@ -1,98 +1,46 @@
+# set wording directory
+# setwd('/yourInfo')
 
+# Import custom functions
+source("custom_functions.R")
 
-#' Title
+# Import example data
+source("example_data.R")
+
+#' Perform a prediction test based on specified parameters.
 #'
-#' @param weights A vector of weights for each endpoint
-#' @param results A vector of 1's and 0's (the results for each endpoint)
-#' @param nullphi Null hypothesized phi value
-#' @param alpha Type I error rate
-#' @param exact Should the calculation be exact? Supported for m < 20
+#' This function conditionally calls the appropriate helper function based on the specified test type.
 #'
-#' @return A printed list
-#' @export
-#' @importFrom stats pnorm
+#' @param weights_vector A vector of weights.
+#' @param results_vector A vector of results.
+#' @param test_type The type of test to perform ("exact", "approx", or "bootstrap").
+#' @param phi_0 The null hypothesis value for the test.
+#'
+#' @return The p-value resulting from the prediction test.
 #'
 #' @examples
-#' weights <- c(0.25, 0.3, 0.6, 0.15, 0.76, 0.17, 0.23)
-#' results <- c(1, 1, 1, 0, 0, 1, 1)
-#' nullphi <- 0.50
-#' alpha <- 0.05
-#' exact <- TRUE
-predtest<- function(weights, results, nullphi = 0.50, alpha = 0.05, exact = TRUE){
+#' # Example usage for "approx" test
+#' predtest(big_weights, big_results, test_type = "approx", phi_0 = 0.5)
+#'
+#' # Additional examples for other test types if needed...
+#'
+#' @export
+predtest <- function(weights_vector, results_vector, test_type, phi_0 = 0.5) {
+  # control flow
+  # conditionally calls the appropriate helper function
+  #   - eligible options are in the options vector
+  # assigns value to p_val
+  # returns a list of specific data
+  options <- c("exact", "approx", "bootstrap")
 
-  if (is.list(weights) == TRUE)
-  {
-  weights <- unlist(weights)
+  if (test_type == "exact") {
+    p_val <- predtest_exact(weights_vector, results_vector, phi_0)
+  } else if (test_type == "approx") {
+    p_val <- predtest_approx(weights_vector, results_vector, phi_0)
+  } else if (test_type == "bootstrap") {
+    p_val <- predtest_bootstrap(weights_vector, results_vector, phi_0) # broken: needing to develop this with Dr. Montgomery
   }
 
-  if (is.list(results) == TRUE)
-  {
-    results <- unlist(results)
-  }
-
-  ntests <- length(weights)
-
-  if (is.null(dim(weights)) & is.null(dim(results)))
-  {
-  teststat <- as.numeric(weights%*%results)
-  }else{
-    teststat <- weights%*%t(results)
-  }
-
-  correct <- sum(results)
-
-  if (exact == FALSE){
-    #type = 1
-    z <- (teststat - nullphi*(sum(weights)) )/sqrt(nullphi*(1-nullphi)*sum(weights^2))
-    pval <- 1-pnorm(z)
-    if (pval < alpha)
-    {
-      decision <- 1
-    } else if (pval >= alpha){
-      decision <- 0
-    }
-  } else if( exact == TRUE & ntests < 25)
-  {
-   # type = 2
-    nperm <- 2^ntests
-    perms <- as.matrix(expand.grid(rep(list(0:1), ntests)))
-    values <- perms%*%as.matrix(weights)
-    rank <- as.data.frame(cbind(values,rank(values)))
-    #pval <- 1-(rank[which(rank$V1 == as.numeric(teststat)),2]/nperm)
-    pval <- dim(rank[rank$V2>= rank[which(rank$V1 == as.numeric(teststat)),2],])[1]/nperm
-
-    if (pval < alpha)
-    {
-      decision <- 1
-    } else if (pval >= alpha){
-      decision <- 0
-    }
-
-  } else if (exact == TRUE & ntests >= 25)
-  {
-    #type = 2
-    stop("The exact test is only available for 25 or fewer endpoints due to computation time. You can edit the source code to remove this limitation")
-  }
-
-  x <- list(statistic = teststat, p.value = pval, null.value = nullphi, m = ntests, alpha = alpha, correct = correct )
-
-
-  print.prediction.test <- function(x){
-    cat("\n\t\tResults for the Prediction Test")
-
-    cat("\n\nOf the", paste(x$m), " endpoints of interest,", paste(x$correct), "were correctly predicted.")
-    if (exact == FALSE){
-      cat("\nCalculated using the normal approximation:")
-    } else if (exact == TRUE){
-      cat("\nCalculated using the exact distribution:")
-    }
-    cat("\n----------------------------------------------------------------")
-    cat("\nTm:", paste(format(x$statistic,digits=4)),
-        "\t Null hypothesized", paste("\U03D5:"), paste(format(x$null.value)),
-        "\t p.value:", paste(format(x$p.value, digits = 4)))
-  }
-
-
-  return(print.prediction.test(x))
-
+  return(p_val)
 }
+
