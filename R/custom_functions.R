@@ -36,7 +36,7 @@ filter_by_time_var <- function(df, id, time_var, pre, post, vars){
 # takes either the mean or median of each variable in two data frames
 # returns a vector of the difference between the two.
 # location of grp_2_data - location of grp_1_data
-create_difference_vector <- function(grp_1_data, grp_2_data, location){
+create_difference_vector <- function(grp_1_data, grp_2_data, location='median'){
   if (location == 'mean') {
     grp_1_means <- colMeans(grp_1_data)
     grp_2_means <- colMeans(grp_2_data)
@@ -52,44 +52,65 @@ create_difference_vector <- function(grp_1_data, grp_2_data, location){
 
 # function to obtain the results
 # will have added feature for mixed
-create_results_vector <- function(hypothesis, results, diff_method = 'wilcoxon', group_a = NULL, group_b = NULL, phi_0 = .5) {
+get_results_vector <- function(hypothesis, vars, differences, diff_method = 'wilcoxon', grp_a = NULL, grp_b = NULL, phi_0=0.5) {
   # error handling
-  if (length(hypothesis) != length(results)) stop('hypothesis and results need to be the same length')
-  if (class(results) != 'numeric') stop('results need to be numeric data type')
-  valid_hypotheses = c('increase', 'decrease', 'difference')# Valid prediction values
-  if (any(!hypothesis %in% valid_hypotheses)) {
-    stop('Invalid hypothesis detected. Valid hypotheses are: ', paste(valid_hypotheses, collapse = ', '))
+
+  if (!all(sapply(differences, function(x) is.numeric(x)))) {
+    stop("differences must only contain numeric values")
   }
-  # methods of obtaining p values
-  wilcoxon_test_p_val <- function(a, b, phi_0) wilcox.test(a, b, mu = phi_0)$p.value
-  t_test_p_val <- function(a, b) t.test(a, b)$p.value
 
-  # assignment of the user's chosen difference method to get a p value
-  p_val_test <- switch(diff_method, wilcox = wilcoxon, t = t_test)
+  valid_hypotheses <- c('decrease', 'increase', 'different')
 
-  # empty vector that will take 1s and 0s to determine accuracy of predictions
-  accuracy <- numeric(length(hypothesis))
+  # if hypothesis is a string it becomes a vector of length(vars) of a valid hypothesis
+  if (is.character(hypothesis) && length(hypothesis) == 1) {
+    hypothesis_vector <- switch(
+      hypothesis[[1]],  # Access the first element of the hypothesis vector
+      increase = rep('increase', length(vars)),
+      decrease = rep('decrease', length(vars)),
+      different = rep('different', length(vars)),
+      stop("Invalid hypothesis. Choose from a string or vector containing: 'decrease', 'increase', 'different'")
+    )
+  } else if (is.vector(hypothesis) && all(hypothesis %in% valid_hypotheses)) {
+    hypothesis_vector <- hypothesis
+  } else {
+    stop("Invalid hypothesis. It must be either a string or a vector of the strings: 'increase', 'decrease', 'different'.")
+  }
+  # confirm same sized vectors for differences, vars, and hypothesis (no longer be a string)
+  if (length(differences) != length(hypothesis_vector)) stop("differences, vars, and  hypothesis must be same length vectors, unless hypothesis is a string")
+  if (length(differences) != length(vars)) stop("differences, vars, and  hypothesis must be same length vectors, unless hypothesis is a string")
 
-  for (i in seq_along(hypothesis)) {
-    # difference means that the user predicted that by the chosen test
-    # that there'd be a statistically significant difference for a particular variable
-    if (hypothesis[i] == 'difference') {
-      # locates the ith col variable of group_a and group_b
-      col_var_a <- group_a[[i]]
-      col_var_b <- group_b[[i]]
-      # assigns the p value from the chosen test
-      p_val = p_val_test(col_var_a, col_var_b, phi_0)
-      accuracy[i] <- ifelse(p_val < phi_0, 1, 0)
-    } else if ((hypothesis[i] == 'increase' && results[i] >= 0) || (hypothesis[i] == 'decrease' && results[i] < 0)) {
-      accuracy[i] <- 1
+  # error handling cases of handling 'different' as a hypothesis
+
+  # empty stack to eventually return results
+  results <- numeric(length(differences))
+
+  # Declare n as the length of vars
+  n <- length(vars)
+
+  for (i in 1:n) {
+    if (hypothesis_vector[i] == 'increase' && differences[i] > 0) {
+      results[i] <- 1
+    } else if (hypothesis_vector[i] == 'decrease' && differences[i] < 0) {
+      results[i] <- 1
+    } else if (hypothesis_vector[i] == 'different') {
+      # might need to create a new function to subset the variable columns to do the tests on
+      if (diff_method == 'wilcoxon') {
+        # do wilcox.test on vars[i] in grp_a and grp_b
+        test_result <- wilcox.test(grp_a[[vars[i]]], grp_b[[vars[i]]], paired = TRUE, alternative = "two.sided")
+      } else if (diff_method == 't') {
+        # do t.test on vars[i] in grp_a and grp_b
+        test_result <- t.test(grp_a[[vars[i]]], grp_b[[vars[i]]], paired = TRUE)
+      }
+      if (test_result$p.value < phi_0){
+        results[i] <- 1
+      }
     } else {
-      accuracy[i] <- 0
+      results[i] <- 0
     }
   }
 
-  return(accuracy)
+  return(results)
 }
-
 
 # predtests
 
