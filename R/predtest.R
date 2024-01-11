@@ -1,5 +1,5 @@
-# set wording directory
-# setwd('/yourInfo')
+# Set working directory
+setwd('/Users/richardvargas/Documents/R/gra_work/pilot_local/R')
 
 # Import custom functions
 source("custom_functions.R")
@@ -20,7 +20,8 @@ source("example_data.R")
 #'
 #' @examples
 #' # Example usage for "approx" test
-#' predtest(big_weights, big_results, test_type = "approx", phi_0 = 0.5)
+#'predtest(big_weights, big_results, test_type = "approx", phi_0 = 0.5)
+#'predtest(weights,results, test_type="exact", phi_0=.5)
 #'
 #' # Additional examples for other test types if needed...
 #'
@@ -34,13 +35,13 @@ predtest <- function(weights_vector, results_vector, test_type, phi_0 = 0.5) {
   options <- c("exact", "approx", "bootstrap")
 
   if (test_type == "exact") {
-    p_val <- predtest_exact(weights_vector, results_vector, phi_0)
+    value_list <- predtest_exact(weights_vector, results_vector, phi_0)
   } else if (test_type == "approx") {
-    p_val <- predtest_approx(weights_vector, results_vector, phi_0)
+    value_list <- predtest_approx(weights_vector, results_vector, phi_0)
   } else if (test_type == "bootstrap") {
-    p_val <- predtest_bootstrap(weights_vector, results_vector, phi_0) # broken: needing to develop this with Dr. Montgomery
+    value_list <- predtest_bootstrap(weights_vector, results_vector, phi_0) # broken: needing to develop this with Dr. Montgomery
   }
 
-  return(p_val)
+  return(value_list)
 }
 
