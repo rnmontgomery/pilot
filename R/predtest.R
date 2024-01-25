@@ -22,6 +22,7 @@ source("example_data.R")
 #' # Example usage for "approx" test
 #'predtest(big_weights, big_results, test_type = "approx", phi_0 = 0.5)
 #'predtest(weights,results, test_type="exact", phi_0=.5)
+#' predtest(weights, results, test_type="bootstrap", phi_0=.5)
 #'
 #' # Additional examples for other test types if needed...
 #'
@@ -39,7 +40,7 @@ predtest <- function(weights_vector, results_vector, test_type, phi_0 = 0.5) {
   } else if (test_type == "approx") {
     value_list <- predtest_approx(weights_vector, results_vector, phi_0)
   } else if (test_type == "bootstrap") {
-    value_list <- predtest_bootstrap(weights_vector, results_vector, phi_0) # broken: needing to develop this with Dr. Montgomery
+    value_list <- predtest_bootstrap(weights_vector, results_vector, phi_0) # it's running, but needs to be double checked
   }
 
   return(value_list)
