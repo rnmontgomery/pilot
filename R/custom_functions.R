@@ -2,71 +2,35 @@
 # library(testthat)
 # devtools::load_all()
 # usethis::use_testthat(3)
-#
+
 
 # purely for testing connection
 add_one = function(n){
   return(n + 1)
 }
 
-# The following functions filter the data set into two groups
+# The following functions filter the dataset into two groups
 filter_by_group_var <- function(df, grp_var, grp_1, grp_2, vars){
-    # Verify that df is a data frame
-    if (!is.data.frame(df)) {
-        stop("df should be a data frame")
-    }
-    
-    # Verify that vars is a vector
-    if (!is.vector(vars)) {
-        stop("vars should be a vector")
-    }
-    
-    # Verify that grp_1 and grp_2 are of the same data type
-    if (class(grp_1) != class(grp_2)) {
-        stop("grp_1 and grp_2 must be of the same data type.")
-    }
-    
-    # Subset the data by group with only the column variables mentioned in ...
-    grp_1_vars <- df[df[[grp_var]] == grp_1, vars, drop = FALSE]
-    grp_2_vars <- df[df[[grp_var]] == grp_2, vars, drop = FALSE]
-    
-    # place the data frames into a list and return it
-    return(list(grp_1_vars = grp_1_vars, grp_2_vars = grp_2_vars))
+  # Subset the data by group with only the column variables mentioned in ...
+  grp_1_vars <- df[df[[grp_var]] == grp_1, vars]
+  grp_2_vars <- df[df[[grp_var]] == grp_2, vars]
+  # place the data frames into a list and return it
+  return(list(grp_1_vars = grp_1_vars, grp_2_vars = grp_2_vars))
 }
 
-# Separates the pre and post results into separate dfs
 filter_by_time_var <- function(df, id, time_var, pre, post, vars){
-    # Verify that df is a data frame
-    if (!is.data.frame(df)) {
-        stop("df should be a data frame")
-    }
-    
-    # Verify that vars is a vector
-    if (!is.vector(vars)) {
-        stop("vars should be a vector")
-    }
-    
-    # Verify that pre and post are of the same data type
-    if (class(pre) != class(post)) {
-        stop("pre and post must be of the same data type.")
-    }
-    
-    # Place in ascending order, so that the ids are in the same row
-    # COULD USE SOME ERROR HANDLING HERE TO MAKE SURE THE IDS ARE IDENTICAL
-    sorted_grp_pre <- df[df[time_var] == pre, , drop = FALSE]
-    sorted_grp_post <- df[df[time_var] == post, , drop = FALSE]
-    
-    # Verify that ids are identical
-    if (!identical(sorted_grp_pre[[id]], sorted_grp_post[[id]])) {
-        stop("IDs must be identical in the pre and post data frames.")
-    }
-    
-    # Filters such that only the chosen variables in vars are present
-    # in each data frame
-    pre_vars <- sorted_grp_pre[vars, drop = FALSE]
-    post_vars <- sorted_grp_post[vars, drop = FALSE]
-    
-    return(list(pre_vars = pre_vars, post_vars = post_vars))
+  # Separates the pre and post results into separate dfs
+  grp_pre <- df[df[time_var] == pre, ]
+  grp_post <- df[df[time_var] == post, ]
+  # Place in ascending order, so that the ids are in the same row
+  # COULD USE SOME ERROR HANDLING HERE TO MAKE SURE THE IDS ARE IDENTICAL
+  sorted_grp_pre <- grp_pre[order(grp_pre[[id]]), ]
+  sorted_grp_post <- grp_post[order(grp_post[[id]]), ]
+  # Filters such that only the chosen variables in vars are present
+  # in each data frame
+  pre_vars <- sorted_grp_pre[vars]
+  post_vars <- sorted_grp_post[vars]
+  return(list(pre_vars = pre_vars, post_vars = post_vars))
 }
 
 # takes either the mean or median of each variable in two data frames
@@ -150,19 +114,33 @@ get_results_vector <- function(hypothesis, vars, differences, diff_method = 'wil
 
 # predtests
 
-# currently broken
-predtest_bootstrap = function(weights, results, phi_0=.5){
-  teststat <- weights%*%results
+# updated. needs to be checked by Dr. Montgomery
+
+predtest_bootstrap <- function(weights, results, nullphi = 0.50, alpha = 0.05, sims = 5000){
+
+  test_stat <- weights%*%results
   ntests <- length(weights)
   correct <- sum(results)
 
-  boots <- matrix(NA,replicates,1)
-  for (g in 1:replicates)
+  if (length(nullphi) == 1 | length(nullphi) == ntests)
   {
-    boots[g,] <- ifelse((rbinom(ntests,1,nullphi))%*%weights >= teststat,1,0)
+    boots <- matrix(NA,sims,1)
+    for (g in 1:sims)
+    {
+      boots[g,] <- ifelse((rbinom(ntests,1,nullphi))%*%weights >= test_stat,1,0)
+    }
+    p_val <- mean(boots)
+    value_list <- list(
+      test_stat = test_stat,
+      p_value = p_val,
+      num_correctly_predicted = sum(results)
+    )
+    return(value_list)
+
+  } else{
+    stop("nullphi needs to be either a single value or specified for every endpoint")
   }
-  pval <- mean(boots)
-  return(pval)
+
 }
 
 predtest_approx = function(weights, results,phi_0=.5){
