@@ -1,5 +1,5 @@
 # Set working directory
-setwd('/Users/richardvargas/Documents/R/gra_work/pilot_local/R')
+setwd('/your_working_directory)
 
 # Import custom functions
 source("custom_functions.R")
@@ -27,7 +27,7 @@ source("example_data.R")
 #' # Additional examples for other test types if needed...
 #'
 #' @export
-predtest <- function(weights_vector, results_vector, test_type, phi_0 = 0.5) {
+predtest <- function(weights_vector, results_vector, test_type, phi_0 = 0.5, sims=5000) {
   # control flow
   # conditionally calls the appropriate helper function
   #   - eligible options are in the options vector
