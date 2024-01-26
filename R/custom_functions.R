@@ -116,7 +116,7 @@ get_results_vector <- function(hypothesis, vars, differences, diff_method = 'wil
 
 # updated. needs to be checked by Dr. Montgomery
 
-predtest_bootstrap <- function(weights, results, nullphi = 0.50, alpha = 0.05, sims = 5000){
+predtest_bootstrap <- function(weights, results, nullphi = 0.50, sims = 5000){
 
   test_stat <- weights%*%results
   ntests <- length(weights)
