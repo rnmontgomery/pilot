@@ -2,7 +2,7 @@
 # library(testthat)
 # devtools::load_all()
 # usethis::use_testthat(3)
-
+#
 
 # purely for testing connection
 add_one = function(n){
@@ -116,12 +116,13 @@ get_results_vector <- function(hypothesis, vars, differences, diff_method = 'wil
 
 # updated. needs to be checked by Dr. Montgomery
 
-predtest_bootstrap <- function(weights, results, nullphi = 0.50, sims = 5000){
+predtest_bootstrap <- function(weights, results, nullphi = 0.50, alpha = 0.05, sims = 5000){
 
   test_stat <- weights%*%results
   ntests <- length(weights)
-  correct <- sum(results)
 
+
+  # unique calculation for this function
   if (length(nullphi) == 1 | length(nullphi) == ntests)
   {
     boots <- matrix(NA,sims,1)
@@ -130,12 +131,8 @@ predtest_bootstrap <- function(weights, results, nullphi = 0.50, sims = 5000){
       boots[g,] <- ifelse((rbinom(ntests,1,nullphi))%*%weights >= test_stat,1,0)
     }
     p_val <- mean(boots)
-    value_list <- list(
-      test_stat = test_stat,
-      p_value = p_val,
-      num_correctly_predicted = sum(results)
-    )
-    return(value_list)
+
+    return(p_val)
 
   } else{
     stop("nullphi needs to be either a single value or specified for every endpoint")
@@ -144,20 +141,16 @@ predtest_bootstrap <- function(weights, results, nullphi = 0.50, sims = 5000){
 }
 
 predtest_approx = function(weights, results,phi_0=.5){
+
   test_stat = weights %*% results
   sum_of_weights = sum(weights)
   squares = weights^2
   mu = phi_0 * sum_of_weights
   sigma = sqrt(phi_0 * (1 - phi_0) * sum(squares))
   z_score = (test_stat - mu) / sigma
-  approx_p_val = pnorm(z_score, lower.tail = FALSE)
-  # list of values of interest
-  value_list <- list(
-    test_stat = test_stat,
-    p_value = approx_p_val,
-    num_correctly_predicted = sum(results)
-  )
-  return(value_list)
+  p_val = pnorm(z_score, lower.tail = FALSE)
+
+  return(p_val)
 }
 
 predtest_exact = function(weights, results, phi_0=.5) {
@@ -170,12 +163,15 @@ predtest_exact = function(weights, results, phi_0=.5) {
   rank <- as.data.frame(cbind(values,rank(values)))
   p_val <- dim(rank[rank$V2 >= rep(rank$V2[which(rank$V1 == as.numeric(test_stat))[1]], length(rank$V2)), ])[1] / nperm
 
-  value_list <- list(
-    test_stat = test_stat,
-    p_value = p_val,
-    num_correctly_predicted = sum(results)
-  )
-  return(value_list)
+  return(p_val)
 
+}
+
+solve_p0 <- function(p_hat, n, z = 1.96) {
+  center <- (1 / (1 + (z^2 / n))) * (p_hat + (z^2 / (2 * n)))
+  diff <- (z / (1 + (z^2 / n))) * ((p_hat * (1 - p_hat) / n) + (z^2 / (4 * (n^2)))) ^ 0.5
+  lower <- center - diff
+  upper <- center + diff
+  return(list(point_estimate = center, confidence_interval = c(lower, upper)))
 }
 
